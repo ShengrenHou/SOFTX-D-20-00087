@@ -13,6 +13,7 @@ class Prices(pr.Prices):
 
     da_price_cache = None
     tou_price_cache = None
+    tou_price_cache_year = None
     co2_price_cache = None
 
     def __init__(self, timer, da_prices=None,
@@ -71,7 +72,7 @@ class Prices(pr.Prices):
             self.da_prices = np.array(da_prices)
 
         if tou_prices is None:
-            if Prices.tou_price_cache is None:
+            if Prices.tou_price_cache_year != timer.year:
                 summer_weekday_prices = np.array(
                     [7.7]*28 + [11.4]*16 + [14]*24 + [11.4]*8 + [7.7]*20
                 )
@@ -110,6 +111,7 @@ class Prices(pr.Prices):
                 else:
                     avg_price = tmp[timer.year - 2000]
                 Prices.tou_price_cache = tou_prices / tou_avg * avg_price
+                Prices.tou_price_cache_year = timer.year
             self.tou_prices = self._interp_prices(Prices.tou_price_cache,
                                                   timesteps,
                                                   timer.simu_horizon,

@@ -1052,6 +1052,7 @@ class TestPrices(unittest.TestCase):
         Prices.co2_price_cache = None
         Prices.da_price_cache = None
         Prices.tou_price_cache = None
+        Prices.tou_price_cache_year = None
         ti = Timer(op_horizon=4, mpc_horizon=8, step_size=3600,
                    initial_date=(2015, 1, 1), initial_time=(1, 0, 0))
         pr = Prices(ti)
