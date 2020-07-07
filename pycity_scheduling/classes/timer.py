@@ -1,5 +1,6 @@
 import datetime
 import calendar
+import warnings
 import pycity_base.classes.Timer as ti
 
 
@@ -70,6 +71,10 @@ class Timer(ti.Timer):
             self.simu_horizon = op_horizon
         else:
             self.simu_horizon = mpc_horizon
+        if self.simu_horizon > horizon:
+            horizon_name = "op_horizon" if mpc_horizon is None else "mpc_horizon"
+            warnings.warn("`{}` indicates a horizon larger than one year. pyCity_base is currently not able to "
+                          "produce forecasts for such a duration.".format(horizon_name), UserWarning)
         if mpc_step_width is None:
             self.mpc_step_width = op_horizon
         else:

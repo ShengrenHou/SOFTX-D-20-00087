@@ -1,6 +1,7 @@
 import datetime
 import unittest
 import logging
+import warnings
 
 import numpy as np
 import pyomo.environ as pyomo
@@ -1137,6 +1138,42 @@ class TestTimer(unittest.TestCase):
     def test_time_in_day(self):
         self.assertEqual(52, self.timer.time_in_day())
         self.assertEqual(48, self.timer.time_in_day(from_init=True))
+
+    def test_more_than_one_year(self):
+        for s, h, horizon in [(s, h, horizon) for s in [300, 900, 1800, 3600]
+                              for h in range(int(86400*365/s)-1, int(86400*365/s)+3)
+                              for horizon in ["op_horizon", "mpc_horizon"]]:
+            year_horizon = int(86400 * 365 / s)
+            kwargs = {"step_size": s, "initial_date": (2015, 1, 15), "initial_time": (12, 0, 0)}
+            kwargs[horizon] = h
+            with self.subTest(msg="step_size={} horizon={} horizon_name={}".format(s, h, horizon)):
+                with warnings.catch_warnings(record=True) as w:
+                    warnings.simplefilter("always", UserWarning)
+                    t = Timer(**kwargs)
+                    we = Weather(t)
+                    if year_horizon < h:
+                        self.assertEqual(len(w), 1, msg="No warning was thrown even though mpc_horizon / op_horizon {} "
+                                                        "is larger than one year which woul be a horizon of {}"
+                                         .format(h, year_horizon))
+                        self.assertIn(horizon, str(w[0].message))
+                        self.assertEqual(len(we.pAmbient), year_horizon)
+                        self.assertEqual(len(we.phiAmbient), year_horizon)
+                        self.assertEqual(len(we.qDiffuse), year_horizon)
+                        self.assertEqual(len(we.qDirect), year_horizon)
+                        self.assertEqual(len(we.rad_earth), year_horizon)
+                        self.assertEqual(len(we.rad_sky), year_horizon)
+                        self.assertEqual(len(we.vWind), year_horizon)
+                        self.assertEqual(len(we.tAmbient), year_horizon)
+                        self.assertEqual(len(we.currentPAmbient), year_horizon)
+                        self.assertEqual(len(we.currentPhiAmbient), year_horizon)
+                        self.assertEqual(len(we.currentQDiffuse), year_horizon)
+                        self.assertEqual(len(we.currentQDirect), year_horizon)
+                        self.assertEqual(len(we.current_rad_earth), year_horizon)
+                        self.assertEqual(len(we.current_rad_sky), year_horizon)
+                        self.assertEqual(len(we.currentVWind), year_horizon)
+                        self.assertEqual(len(we.currentTAmbient), year_horizon)
+                    else:
+                        self.assertEqual(len(w), 0)
 
 
 class TestWindEnergyConverter(unittest.TestCase):
