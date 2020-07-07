@@ -1068,6 +1068,12 @@ class TestPrices(unittest.TestCase):
 
         self.assertAlmostEqual(20, pr.da_prices[0], places=4)
 
+    def test_unavailable_year(self):
+        ti = Timer(op_horizon=4, mpc_horizon=8, step_size=3600,
+                   initial_date=(9999, 1, 1), initial_time=(1, 0, 0))
+        with self.assertWarnsRegex(UserWarning, "9999"):
+            Prices(ti)
+
 
 class TestThermalEnergyStorage(unittest.TestCase):
     def setUp(self):

@@ -1,5 +1,6 @@
 import os.path as op
 import calendar
+import warnings
 
 import numpy as np
 import pycity_base.classes.Prices as pr
@@ -102,7 +103,12 @@ class Prices(pr.Prices):
                 file_name = "consumer_prices_yearly.txt"
                 file_path = op.join(root_dir, "data", file_name)
                 tmp = np.loadtxt(file_path, dtype=np.float32, skiprows=1)
-                avg_price = tmp[timer.year - 2000]
+                if len(tmp) <= timer.year - 2000:
+                    warnings.warn("Year {} not in `consumer_prices_yearly.txt`. Using year {} instead"
+                                  .format(timer.year, 2000+len(tmp)-1))
+                    avg_price = tmp[-1]
+                else:
+                    avg_price = tmp[timer.year - 2000]
                 Prices.tou_price_cache = tou_prices / tou_avg * avg_price
             self.tou_prices = self._interp_prices(Prices.tou_price_cache,
                                                   timesteps,
