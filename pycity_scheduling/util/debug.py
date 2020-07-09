@@ -1,6 +1,5 @@
 import pyomo.environ as pyomo
-from pyomo.opt import SolverStatus, TerminationCondition
-from pyomo.solvers.plugins.solvers.direct_or_persistent_solver import DirectOrPersistentSolver
+from pyomo.opt import SolverStatus, TerminationCondition, OptSolver
 from pyomo.opt.results.results_ import SolverResults
 import pyomo.solvers.plugins.solvers as Solvers
 
@@ -12,7 +11,7 @@ def analyze_model(model, optimizer, result, options={}):
     ----------
     model : pyomo.ConcreteModel
         Model with `status != GRB.OPTIAML`
-    optimizer : DirectOrPersistentSolver
+    optimizer : OptSolver
         The solver that was used for optimization and is used for analyzes
     result: SolverResults
         The not optimal result that was returned by the solver

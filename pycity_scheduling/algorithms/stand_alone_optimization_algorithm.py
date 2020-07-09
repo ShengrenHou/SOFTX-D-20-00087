@@ -7,7 +7,7 @@ from pycity_scheduling.exception import NonoptimalError
 from pycity_scheduling.util import populate_models
 
 
-def stand_alone_optimization(city_district, optimizer="gurobi_persistent", mode="convex", models=None, robustness=None,
+def stand_alone_optimization(city_district, optimizer="gurobi_direct", mode="convex", models=None, robustness=None,
                              debug=True):
     """Implementation of the reference optimization algorithm.
 
@@ -30,8 +30,8 @@ def stand_alone_optimization(city_district, optimizer="gurobi_persistent", mode=
         Specify wether detailed debug information shall be printed.
     """
 
-    optimizer = pyomo.SolverFactory(optimizer)
     nodes = city_district.node
+    optimizer = pyomo.SolverFactory(optimizer, node_ids=[0].extend(nodes.keys()))
 
     if models is None:
         models = populate_models(city_district, mode, 'stand-alone', robustness)

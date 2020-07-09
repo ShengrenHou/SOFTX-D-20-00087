@@ -32,7 +32,7 @@ class TestConstraints(unittest.TestCase):
 
         lal_constr.apply(ee.model, "convex")
         self.assertEqual(_get_constr_count(ee.model), 0)
-        opt = pyomo.SolverFactory('gurobi')
+        opt = pyomo.SolverFactory('gurobi_direct')
         opt.solve(m)
         ee.update_schedule()
         for i in ee.op_time_vec:
@@ -103,7 +103,7 @@ class TestFactory(unittest.TestCase):
         m.o = pyomo.Objective(expr=district.get_objective())
 
         # check feasibility
-        opt = pyomo.SolverFactory('gurobi')
+        opt = pyomo.SolverFactory('gurobi_direct')
         results = opt.solve(m)
         self.assertEqual(TerminationCondition.optimal, results.solver.termination_condition)
 

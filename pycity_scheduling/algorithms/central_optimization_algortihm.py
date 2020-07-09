@@ -7,7 +7,7 @@ from pycity_scheduling.exception import NonoptimalError
 from pycity_scheduling.util import populate_models
 
 
-def central_optimization(city_district, optimizer="gurobi_persistent", mode="convex", models=None, beta=1, robustness=None,
+def central_optimization(city_district, optimizer="gurobi_direct", mode="convex", models=None, beta=1, robustness=None,
                          debug=True):
     """Implementation of the central optimization algorithm.
 
@@ -38,8 +38,8 @@ def central_optimization(city_district, optimizer="gurobi_persistent", mode="con
         Specify wether detailed debug information shall be printed.
     """
 
-    optimizer = pyomo.SolverFactory(optimizer)
     nodes = city_district.node
+    optimizer = pyomo.SolverFactory(optimizer, node_ids=[0].extend(nodes.keys()))
 
     if models is None:
         models = populate_models(city_district, mode, 'central', robustness)

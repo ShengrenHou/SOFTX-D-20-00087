@@ -59,16 +59,16 @@ def dual_decomposition(city_district, optimizer="gurobi_persistent", mode="conve
     city_district.update_model(mode)
 
     # prepare solver if persistent
-    optimizers = {0: pyomo.SolverFactory(optimizer)}
+    optimizers = {0: pyomo.SolverFactory(optimizer, node_ids=[0])}
     persistent = isinstance(optimizers[0], PersistentSolver)
     if persistent:
         optimizers[0].set_instance(models[0])
         for node_id, node in nodes.items():
-            optimizers[node_id] = pyomo.SolverFactory(optimizer)
+            optimizers[node_id] = pyomo.SolverFactory(optimizer, node_ids=[node_id])
             optimizers[node_id].set_instance(models[node_id])
     else:
         for node_id in nodes.keys():
-            optimizers[node_id] = optimizers[0]
+            optimizers[node_id] = pyomo.SolverFactory(optimizer, node_ids=[node_id])
 
     # ----------------
     # Start scheduling

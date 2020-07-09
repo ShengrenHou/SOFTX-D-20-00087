@@ -58,7 +58,7 @@ class TestBattery(unittest.TestCase):
         #model.compute_statistics()
         #stats = model.statistics
         #self.assertEqual(12, stats.number_of_variables)
-        self.assertEqual(14, result.Problem[0].number_of_variables)
+        self.assertEqual(13, result.Problem[0].number_of_variables)
         var_sum = pyomo.value(pyomo.quicksum(self.bat.model.P_El_vars[t] for t in range(1, 3)))
         self.assertAlmostEqual(40, var_sum, places=5)
         var_sum = pyomo.value(pyomo.quicksum(
@@ -940,7 +940,7 @@ class TestElectricVehicle(unittest.TestCase):
         # model.compute_statistics()
         # stats = model.statistics
         # self.assertEqual(30, stats.number_of_variables)
-        self.assertEqual(32, result.Problem[0].number_of_variables)
+        self.assertEqual(31, result.Problem[0].number_of_variables)
         var_sum = pyomo.value(pyomo.quicksum(self.ev.model.P_El_vars[t] for t in range(1, 6)))
         self.assertAlmostEqual(20, var_sum, places=5)
         var_sum = pyomo.value(pyomo.quicksum(
@@ -1223,5 +1223,5 @@ def solve_model(model):
     if not hasattr(model, "simple_var"):
         model.simple_var = pyomo.Var(domain=pyomo.Reals, bounds=(None, None), initialize=0)
         model.simple_constr = pyomo.Constraint(expr=model.simple_var == 1)
-    opt = pyomo.SolverFactory('gurobi')
+    opt = pyomo.SolverFactory('gurobi_direct')
     return opt.solve(model)
