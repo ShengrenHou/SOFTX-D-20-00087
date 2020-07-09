@@ -105,7 +105,7 @@ class Prices(pr.Prices):
                 file_path = op.join(root_dir, "data", file_name)
                 tmp = np.loadtxt(file_path, dtype=np.float32, skiprows=1)
                 if len(tmp) <= timer.year - 2000:
-                    warnings.warn("Year {} not in `consumer_prices_yearly.txt`. Using year {} instead"
+                    warnings.warn("Year {} not in `consumer_prices_yearly.txt`. Using year {} instead."
                                   .format(timer.year, 2000+len(tmp)-1))
                     avg_price = tmp[-1]
                 else:

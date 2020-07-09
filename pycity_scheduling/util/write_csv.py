@@ -52,5 +52,5 @@ def ref_schedule_to_csv(input_list, file_name):
         Specify the file name.
     """
     import warnings
-    warnings.warn("ref_schedule_to_csv() is deprecated; use schedule_to_csv() instead", DeprecationWarning)
+    warnings.warn("ref_schedule_to_csv() is deprecated; use schedule_to_csv() instead.", DeprecationWarning)
     schedule_to_csv(input_list, file_name, schedule="Ref")

@@ -167,7 +167,7 @@ class OptimizationEntity(object):
     def save_ref_schedule(self):
         """Save the schedule of the current reference scheduling."""
         import warnings
-        warnings.warn("save_ref_schedule() is deprecated; use copy_schedule() instead", DeprecationWarning)
+        warnings.warn("save_ref_schedule() is deprecated; use copy_schedule() instead.", DeprecationWarning)
         self.copy_schedule("Ref", "default")
 
 
