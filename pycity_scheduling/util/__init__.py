@@ -241,7 +241,7 @@ def get_schedule(entity, schedule_type=None, timestep=None, energy=False,
         schedule_name += 'Ref_'
     else:
         raise ValueError(
-            "Unknown `schedule_type`: '{}'. Must be `None`, 'act' or 'ref'."
+            "Unknown `schedule_type`: '{}'. Must be 'None', 'act' or 'ref'."
             .format(schedule_type)
         )
     schedule_name += 'Schedule'

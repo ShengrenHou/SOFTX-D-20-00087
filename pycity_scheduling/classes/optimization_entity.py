@@ -3,6 +3,7 @@ import pyomo.environ as pyomo
 from pyomo.core.expr.numeric_expr import ExpressionBase
 from typing import Callable, Any
 
+
 class OptimizationEntity(object):
     """
     Base class for all optimization entities.
@@ -169,7 +170,6 @@ class OptimizationEntity(object):
         import warnings
         warnings.warn("save_ref_schedule() is deprecated; use copy_schedule() instead.", DeprecationWarning)
         self.copy_schedule("Ref", "default")
-
 
     def reset(self, name=None):
         """Reset all values of specified schedule.
