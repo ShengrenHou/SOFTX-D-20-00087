@@ -146,6 +146,11 @@ class TestBoiler(unittest.TestCase):
         logger.setLevel(oldlevel)
         self.assertEqual(TerminationCondition.infeasible, results.solver.termination_condition)
 
+    def test_objective(self):
+        model = pyomo.ConcreteModel()
+        self.bl.populate_model(model)
+        self.bl.get_objective()
+
 
 class TestBuilding(unittest.TestCase):
     def setUp(self):
@@ -763,6 +768,12 @@ class TestDeferrableLoad(unittest.TestCase):
         dl.update_schedule()
         assert_equal_array(dl.P_El_Schedule[:6], [0, 19, 19, 19, 0, 0])
 
+    def test_objective(self):
+        with self.assertWarns(UserWarning):
+            dl = DeferrableLoad(self.e, 19, 19, load_time=self.lt)
+        model = pyomo.ConcreteModel()
+        dl.populate_model(model)
+        dl.get_objective()
 
 class TestFixedLoad(unittest.TestCase):
     def test_populate_model(self):
@@ -899,6 +910,11 @@ class TestElectricalEntity(unittest.TestCase):
         # properly tested in CityDistrict
         self.ee.P_El_Schedule = np.array([10]*4 + [-20]*4)
         self.assertEqual(0, autarky(self.ee))
+
+    def test_objective(self):
+        model = pyomo.ConcreteModel()
+        self.ee.populate_model(model)
+        self.ee.get_objective()
 
 
 class TestElectricalHeater(unittest.TestCase):
@@ -1045,6 +1061,11 @@ class TestPhotovoltaic(unittest.TestCase):
         self.pv.load_schedule("Ref")
         co2 = calculate_co2(self.pv, co2_emissions=co2_em)
         self.assertEqual(600, co2)
+
+    def test_objective(self):
+        model = pyomo.ConcreteModel()
+        self.pv.populate_model(model)
+        self.pv.get_objective()
 
 
 class TestPrices(unittest.TestCase):
@@ -1200,6 +1221,11 @@ class TestWindEnergyConverter(unittest.TestCase):
         self.wec.load_schedule("Ref")
         co2 = calculate_co2(self.wec, co2_emissions=co2_em)
         self.assertEqual(200, co2)
+
+    def test_objective(self):
+        model = pyomo.ConcreteModel()
+        self.wec.populate_model(model)
+        self.wec.get_objective()
 
 
 def get_env(op_horizon, mpc_horizon=None, mpc_step_width=1):

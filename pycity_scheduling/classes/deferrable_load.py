@@ -73,7 +73,7 @@ class DeferrableLoad(ElectricalEntity, ed.ElectricalDemand):
         """Add device block to pyomo ConcreteModel
 
         Call parent's `populate_model` method and set the upper bounds to the
-        nominal power or zero depending on `self.time`. Also set a constraint
+        nominal power or zero depending on `self.load_time`. Also set a constraint
         for the minimum load. If mode == 'binary' add binary variables to model
         load as one block that can be shifted in time.
 
@@ -192,7 +192,7 @@ class DeferrableLoad(ElectricalEntity, ed.ElectricalDemand):
             Objective function.
         """
         m = self.model
-        max_loading_time = sum(self.time) * self.time_slot
+        max_loading_time = sum(self.load_time) * self.time_slot
         optimal_P_El = self.E_Consumption / max_loading_time
         obj = coeff * pyomo.sum_product(m.P_El_vars, m.P_El_vars)
         obj += -2 * coeff * optimal_P_El * pyomo.sum_product(m.P_El_vars)
