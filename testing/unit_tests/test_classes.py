@@ -1145,8 +1145,20 @@ class TestThermalEntity(unittest.TestCase):
 class TestSpaceHeating(unittest.TestCase):
     def setUp(self):
         e = get_env(2, 4)
-        load = np.arange(1, 5)
-        self.sh = SpaceHeating(e, method=0, loadcurve=load)
+        self.load = np.arange(1, 5)
+        self.sh = SpaceHeating(e, method=0, loadcurve=self.load)
+
+    def test_model(self):
+        m = pyomo.ConcreteModel()
+        self.sh.populate_model(m)
+        self.sh.update_model()
+
+        m.o = pyomo.Objective(expr=self.sh.model.P_Th_vars[0]+self.sh.model.P_Th_vars[1])
+        r = solve_model(m)
+        assert_equal_array(self.sh.P_Th_Schedule, self.load)
+        self.assertAlmostEqual(self.load[0], self.sh.model.P_Th_vars[0].value)
+        self.assertAlmostEqual(self.load[1], self.sh.model.P_Th_vars[1].value)
+
 
 
 class TestTimer(unittest.TestCase):
