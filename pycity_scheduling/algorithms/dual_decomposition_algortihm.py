@@ -44,7 +44,7 @@ def dual_decomposition(city_district, optimizer="gurobi_persistent", mode="conve
     iteration = 0
     lambdas = np.zeros(OP_HORIZON)
     r_norms = [np.inf]
-
+    P_El_Schedules = {}
 
     if models is None:
         models = populate_models(city_district, mode, 'dual-decomposition', robustness)
@@ -53,8 +53,11 @@ def dual_decomposition(city_district, optimizer="gurobi_persistent", mode="conve
         models[0].simple_var = pyomo.Var(domain=pyomo.Reals, bounds=(None, None), initialize=0)
         models[0].simple_constr = pyomo.Constraint(expr=models[0].simple_var == 1)
 
+    P_El_Schedules[0] = np.zeros(OP_HORIZON)
+
     for node_id, node in nodes.items():
         node['entity'].update_model(mode, robustness=robustness)
+        P_El_Schedules[node_id] = np.zeros(OP_HORIZON)
 
     city_district.update_model(mode)
 
@@ -116,7 +119,8 @@ def dual_decomposition(city_district, optimizer="gurobi_persistent", mode="conve
                     import pycity_scheduling.util.debug as debug
                     debug.analyze_model(model, optimizers[node_id], result)
                 raise NonoptimalError("Could not retrieve schedule from model.")
-            entity.update_schedule()
+            np.copyto(P_El_Schedules[node_id],
+                      list(entity.model.P_El_vars.extract_values().values()))
 
         # ----------------------
         # 2) optimize aggregator
@@ -144,17 +148,15 @@ def dual_decomposition(city_district, optimizer="gurobi_persistent", mode="conve
                 import pycity_scheduling.util.debug as debug
                 debug.analyze_model(model, optimizers[0], result)
             raise NonoptimalError("Could not retrieve schedule from model.")
-        city_district.update_schedule()
+        np.copyto(P_El_Schedules[0],
+                  list(city_district.model.P_El_vars.extract_values().values()))
 
         # ----------------------
         # 3) Incentive Update
         # ----------------------
-
-        t1 = city_district.timer.currentTimestep
-        t2 = t1 + OP_HORIZON
-        lambdas -= rho * city_district.P_El_Schedule[t1:t2]
-        for node in nodes.values():
-            lambdas += rho * node['entity'].P_El_Schedule[t1:t2]
+        lambdas -= rho * P_El_Schedules[0]
+        for node_id in nodes.keys():
+            lambdas += rho * P_El_Schedules[node_id]
 
         # ------------------------------------------
         # Calculate parameters for stopping criteria
@@ -162,12 +164,14 @@ def dual_decomposition(city_district, optimizer="gurobi_persistent", mode="conve
 
         r_norms.append(0)
         r = np.zeros(OP_HORIZON)
-        np.copyto(r, -city_district.P_El_Schedule[t1:t2])
-        for node in nodes.values():
-            r += node["entity"].P_El_Schedule[t1:t2]
+        np.copyto(r, -P_El_Schedules[0])
+        for node_id in nodes.keys():
+            r += P_El_Schedules[node_id]
 
         for t in city_district.op_time_vec:
             if abs(r[t]) > r_norms[-1]:
                 r_norms[-1] = abs(r[t])
-
+    city_district.update_schedule()
+    for node in nodes.values():
+        node["entity"].update_schedule()
     return iteration, r_norms, lambdas
