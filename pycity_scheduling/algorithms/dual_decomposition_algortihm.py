@@ -111,7 +111,8 @@ def dual_decomposition(city_district, optimizer="gurobi_persistent", mode="conve
 
             if persistent:
                 optimizers[node_id].set_objective(model.o)
-                result = optimizers[node_id].solve()
+                result = optimizers[node_id].solve(save_results=False, load_solutions=False)
+                optimizers[node_id].load_vars([entity.model.P_El_vars[t] for t in range(OP_HORIZON)])
             else:
                 result = optimizers[node_id].solve(model)
             if result.solver.termination_condition != TerminationCondition.optimal or result.solver.status != SolverStatus.ok:
@@ -140,7 +141,8 @@ def dual_decomposition(city_district, optimizer="gurobi_persistent", mode="conve
 
         if persistent:
             optimizers[0].set_objective(model.o)
-            result = optimizers[0].solve()
+            result = optimizers[0].solve(save_results=False, load_solutions=False)
+            optimizers[0].load_vars([city_district.model.P_El_vars[t] for t in range(OP_HORIZON)])
         else:
             result = optimizers[0].solve(model)
         if result.solver.termination_condition != TerminationCondition.optimal or result.solver.status != SolverStatus.ok:
@@ -171,7 +173,12 @@ def dual_decomposition(city_district, optimizer="gurobi_persistent", mode="conve
         for t in city_district.op_time_vec:
             if abs(r[t]) > r_norms[-1]:
                 r_norms[-1] = abs(r[t])
+
+    if persistent:
+        optimizers[0].load_vars()
     city_district.update_schedule()
-    for node in nodes.values():
+    for node_id, node in nodes.items():
+        if persistent:
+            optimizers[node_id].load_vars()
         node["entity"].update_schedule()
     return iteration, r_norms, lambdas
