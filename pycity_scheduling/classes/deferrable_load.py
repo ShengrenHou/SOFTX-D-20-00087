@@ -59,15 +59,19 @@ class DeferrableLoad(ElectricalEntity, ed.ElectricalDemand):
                 .format(self._long_ID)
             )
 
-        self.new_var("P_Start", dtype=np.bool, func=lambda model, t:
-                     t == np.argmax(np.array(
-                         [sum(pyomo.value(model.P_El_vars[i])
-                          for i in range(start, start+self.runtime))
-                          for start in range(0, self.op_horizon - self.runtime)
-                          ])
-                     ))
+        self.new_var("P_Start", dtype=np.bool, func=self._get_start)
 
         self.runtime = int(round(self.E_Consumption / (self.P_El_Nom * self.time_slot)))
+
+    def _get_start(self, model):
+        consumptions = np.zeros(self.op_horizon)
+        for i in self.op_time_vec:
+            consumptions[i] = pyomo.value(model.P_El_vars[i])
+        cumsum =np.cumsum(consumptions)
+        runtime_consumptions = cumsum[self.runtime:] - cumsum[:-self.runtime]
+        starts = np.zeros(self.op_horizon, dtype=np.bool)
+        starts[np.argmax(runtime_consumptions)] = True
+        return starts
 
     def populate_model(self, model, mode="convex"):
         """Add device block to pyomo ConcreteModel

@@ -131,7 +131,7 @@ class OptimizationEntity(object):
         for name, schedule in self.schedule.items():
             if name in self.__var_funcs__ and not hasattr(self.model, name + "_vars"):
                 func = self.__var_funcs__[name]
-                values = np.fromiter((func(self.model, t) for t in self.op_time_vec), dtype=schedule.dtype)
+                schedule[op_slice] = func(self.model)
             else:
                 values = np.fromiter(getattr(self.model, name + "_vars").extract_values().values(), dtype=schedule.dtype)
             if schedule.dtype == np.bool: # TODO is this still needed?
