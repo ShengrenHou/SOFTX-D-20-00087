@@ -4,16 +4,16 @@ from pycity_scheduling import constants, classes
 from pycity_scheduling.classes import OptimizationEntity, Boiler, ElectricalEntity, CityDistrict
 
 
-def calculate_costs(entity, timestep=None, prices=None,
-                    feedin_factor=None):
-    """Calculate electricity costs for the ElectricalEntity with the current schedule.
+def calculate_costs(entity, timestep=None, prices=None, feedin_factor=None):
+    """
+    Calculate electricity costs for the entity with the current schedule.
 
     Parameters
     ----------
     entity : ElectricalEntity
-        The Entity to calculate costs for.
+        The entity to calculate costs for.
     timestep : int, optional
-        If specified, calculate costs only to this timestep.
+        If specified, calculate metric only to this timestep.
     prices : array_like, optional
         Energy prices for simulation horizon.
     feedin_factor : float, optional
@@ -43,24 +43,26 @@ def calculate_costs(entity, timestep=None, prices=None,
     return costs
 
 
-def calculate_adj_costs(entity, schedule, timestep=None, prices=None,
-                        total_adjustments=True):
-    """Calculate costs for adjustments.
+def calculate_adj_costs(entity, schedule, timestep=None, prices=None, total_adjustments=True):
+    """
+    Calculate costs for power schedule adjustments.
+
     Parameters
     ----------
     entity : ElectricalEntity
-        The Entity to calculate adjustment costs for.
+        The entity to calculate adjustment costs for.
     schedule : str, optional
        Schedule to adjust to.
-       'default' : Normal schedule
+       'default' : Default schedule
        'Ref', 'reference' : Reference schedule
     timestep : int, optional
-        If specified, calculate costs only to this timestep.
+        If specified, calculate metric only to this timestep.
     prices : array_like, optional
         Adjustment prices for all timesteps in simulation horizon.
     total_adjustments : bool, optional
         `True` if positive and negative deviations shall be considered.
         `False` if only positive deviations shall be considered.
+
     Returns
     -------
     float :
@@ -79,16 +81,18 @@ def calculate_adj_costs(entity, schedule, timestep=None, prices=None,
 
 
 def calculate_co2(entity, timestep=None, co2_emissions=None):
-    """Calculate CO2 emissions of the entity with the current schedule.
+    """
+    Calculate CO2 emissions for the entity with the current schedule.
+
     Parameters
     ----------
     entity : OptimizationEntity
-        The Entity to calculate co2 emission of.
+        The entity to calculate co2 emission for.
     timestep : int, optional
-        If specified, calculate emissions only to this timestep.
+        If specified, calculate metric only to this timestep.
     co2_emissions : array_like, optional
-        Specific CO2 emissions for all timesteps in the simulation horizon
-        in [g/kWh].
+        Specific CO2 emissions for all timesteps in the simulation horizon in [g/kWh].
+
     Returns
     -------
     float :
@@ -138,24 +142,27 @@ def calculate_co2(entity, timestep=None, co2_emissions=None):
         co2 -= wec_schedule * entity.time_slot * constants.CO2_EMISSIONS_WIND
         return co2
     else:
-        raise
+        raise NotImplementedError
 
 
 def calculate_adj_power(entity, schedule, timestep=None, total_adjustments=True):
-    """Compute adjustment power.
+    """
+    Compute the power schedule adjustments.
+
     Parameters
     ----------
     entity : ElectricalEntity
-        The Entity to calculate the power adjustment of.
+        The entity to calculate the power adjustment for.
     schedule : str, optional
        Schedule to adjust to.
-       'default' : Normal schedule
+       'default' : Default schedule
        'Ref', 'reference' : Reference schedule
     timestep : int, optional
-        If specified, calculate power curve up to this timestep only.
+        If specified, calculate metric only to this timestep.
     total_adjustments : bool, optional
         `True` if positive and negative deviations shall be considered.
         `False` if only positive deviations shall be considered.
+
     Returns
     -------
     array of float :
@@ -171,20 +178,23 @@ def calculate_adj_power(entity, schedule, timestep=None, total_adjustments=True)
 
 
 def calculate_adj_energy(entity, schedule, timestep=None, total_adjustments=True):
-    """Compute the cumulated absolute energy of all adjustments.
+    """
+    Compute the cumulative absolute energy of all adjustments.
+
     Parameters
     ----------
     entity : ElectricalEntity
-        The Entity to calculate the energy adjustment of.
+        The entity to calculate the energy adjustment for.
     schedule : str, optional
        Schedule to adjust to.
-       'default' : Normal schedule
+       'default' : Default schedule
        'Ref', 'reference' : Reference schedule
     timestep : int, optional
-        If specified, calculate energy only to this timestep.
+        If specified, calculate metric only to this timestep.
     total_adjustments : bool, optional
         `True` if positive and negative deviations shall be considered.
         `False` if only positive deviations shall be considered.
+
     Returns
     -------
     float :
@@ -196,45 +206,51 @@ def calculate_adj_energy(entity, schedule, timestep=None, total_adjustments=True
 
 
 def metric_delta_g(entity, schedule):
-    """Compute the factor "Delta g" with the current schedule and the referenced schedule.
-    Compute the factor :math:`\Delta` g based on the optimized schedules,
-    assuming that `city_district` holds the schedule of a DSM optimization.
-    Returns
-    -------
+    """
+    Compute the factor ∆g for the current schedule and the reference schedule.
+
+    Parameters
+    ----------
     entity : ElectricalEntity
         The Entity to calculate the delta g metroc for.
     schedule : str
        Referenced Schedule
        'default' : Normal schedule
        'Ref', 'reference' : Reference schedule
+
+    Returns
+    -------
     float :
-        Factor "Delta g".
+        Factor ∆g.
+
     Notes
     -----
-     - Implementation as given in the lecture "Elektrizitaetswirtschaft"
-       by Prof. Dr.-Ing. Christian Rehtanz at TU Dortmund.
+        - Implementation as given in the lecture "Elektrizitaetswirtschaft"
+          by Prof. Dr.-Ing. Christian Rehtanz at TU Dortmund.
     """
     P_El_Min_dsm = min(entity.P_El_Schedule)
     P_El_Max_dsm = max(entity.P_El_Schedule)
     P_El_Min_ref = min(entity.schedules[schedule]["P_El"])
     P_El_Max_ref = max(entity.schedules[schedule]["P_El"])
-    g = 1 - (abs(P_El_Max_dsm - P_El_Min_dsm)
-             / abs(P_El_Max_ref - P_El_Min_ref))
+    g = 1.0 - (abs(P_El_Max_dsm - P_El_Min_dsm) / abs(P_El_Max_ref - P_El_Min_ref))
     return g
 
 
 def peak_to_average_ratio(entity, timestep=None):
-    """Compute the ratio of peak demand to average demand.
-    The ratio of the absolute peak demand of the specified schedule
+    """
+    Compute the ratio of peak demand to the average demand.
+
+    The ratio of the absolute peak demand of the specified schedule is
     compared to the absolute mean of the schedule.
-    `r` >= 1; a lower value is better, 1 would be optimal (no peaks at
-    all).
+    It holds `r` >= 1, where a lower value is `better`, 1.0 would be optimal (i.e. no peaks at all).
+
     Parameters
     ----------
     entity : ElectricalEntity
-        The Entity to calculate the peak to avereage ratio for.
+        The entity to calculate the peak to avereage ratio for.
     timestep : int, optional
-        If specified, calculate ratio only to this timestep.
+        If specified, calculate metric only to this timestep.
+
     Returns
     -------
     float :
@@ -249,23 +265,27 @@ def peak_to_average_ratio(entity, timestep=None):
     return r
 
 
-#TODO if 'r' > 0??
 def peak_reduction_ratio(entity, schedule, timestep=None):
-    """Compute the ratio of the peak reduction.
-    The reduction of the absolute peak demand of the current schedule
-    compared to the peak demand in the referenced schedule.
-    If `r` < 1 the specified schedule has lower peaks, otherwise the
-    referenced schedule has lower peaks. Normally a lower value is better.
+    """
+    Compute the ratio of the peak reduction.
+
+    The reduction of the absolute peak demand of the current schedule is
+    compared to the peak demand in the reference schedule.
+    If `r` < 1, the specified schedule has smaller peaks, otherwise the
+    reference schedule has smaller peaks.
+    Usually a small `r` value is the desired outcome.
+
     Parameters
     ----------
     entity : ElectricalEntity
-        The Entity to calculate the peak reduction ratio for.
+        The entity to calculate the peak reduction ratio for.
     schedule : str
         Name of Schedule to compare to
-       'default' : Normal schedule
+       'default' : Default schedule
        'Ref', 'reference' : Reference schedule
     timestep : int, optional
-        If specified, calculate ratio only to this timestep.
+        If specified, calculate metric only to this timestep.
+
     Returns
     -------
     float :
@@ -282,17 +302,20 @@ def peak_reduction_ratio(entity, schedule, timestep=None):
 
 
 def self_consumption(entity, timestep=None):
-    """Calculate the self consumption of the current schedule.
+    """
+    Calculate the self-consumption rate for the current schedule.
+
     Parameters
     ----------
     entity : ElectricalEntity
-        The Entity to calculate the self consumption for.
+        The entity to calculate the self-consumption rate for.
     timestep : int, optional
-        If specified, calculate self consumption only to this timestep.
+        If specified, calculate metric only to this timestep.
+
     Returns
     -------
     float :
-        Self consumption.
+        Self-consumption rate.
     """
     if timestep is None:
         timestep = len(entity.P_El_Schedule)
@@ -311,17 +334,20 @@ def self_consumption(entity, timestep=None):
 
 
 def autarky(entity, timestep=None):
-    """Calculate the autarky of the current schedule.
+    """
+    Calculate the autarky rate for the current schedule.
+
     Parameters
     ----------
     entity : ElectricalEntity
-        The Entity to the autarky for.
+        The entity to calculate the autarky rate for.
     timestep : int, optional
-        If specified, calculate autarky only to this timestep.
+        If specified, calculate metric only to this timestep.
+
     Returns
     -------
     float :
-        Autarky.
+        Autarky rate.
     """
     if timestep is None:
         timestep = len(entity.P_El_Schedule)
@@ -337,3 +363,34 @@ def autarky(entity, timestep=None):
     cover = sum(np.minimum(res_schedule, load))
     autarky = cover / consumption
     return autarky
+
+
+def absolute_flexibility_gain(entity, schedule, timestep=None):
+    """
+    Calculates the absolute flexibility gain for the entity with the current schedule.
+    This corresponds to the amount of electrical energy shifted due to the selected objective function.
+
+    Parameters
+    ----------
+    entity : ElectricalEntity
+        The entity to calculate the absolute flexibility gain for.
+    schedule : str
+        Name of Schedule to compare to
+       'default' : Default schedule
+       'Ref', 'reference' : Reference schedule
+    timestep : int, optional
+        If specified, calculate metric only to this timestep.
+
+    Returns
+    -------
+    float :
+        Absolute flexibility gain in [kWh].
+    """
+    if timestep is None:
+        timestep = len(entity.P_El_Schedule)
+    p = entity.P_El_Schedule[:timestep]
+    ref = entity.schedules[schedule]["P_El"][:timestep]
+    diff = ref - p
+    np.clip(diff, a_min=0, a_max=None, out=diff)
+    abs_flex = sum(diff) * entity.time_slot
+    return abs_flex

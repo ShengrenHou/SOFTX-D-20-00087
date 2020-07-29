@@ -47,6 +47,7 @@ def _calculate_dl_times(timer):
     ]
     return dl_time_ranges
 
+
 def _distribute(d, number):
     """Generates amounts based on distribution and total number and minimizes rounding error
 
@@ -277,7 +278,7 @@ def generate_tabula_district(environment,
                              mfh_building_distribution=None,
                              mfh_heating_distribution=None,
                              mfh_device_probabilities=None,
-                             agg_objective='price',
+                             district_objective='price',
                              building_objective='price',
                              seed=1):
     """Create a TABULA district.
@@ -329,10 +330,10 @@ def generate_tabula_district(environment,
             {'FL', 'DL', 'EV', 'PV', 'BAT'}
         Values : float
             Number between 0 and 1.
-    agg_objective : str, optional
-        Objective function for the aggregator. Defaults to 'price'.
+    district_objective : str, optional
+        Objective function for the city district (aggregator). Default is 'price'.
     building_objective : str, optional
-        Objective function for the buildings. Defaults to 'price'.
+        Objective function for the buildings. Default is 'price'.
     seed: int, optional
         Specify a seed for the randomization. If omitted, a non-deterministic
         city district will be generated.
@@ -341,7 +342,7 @@ def generate_tabula_district(environment,
     -------
 
     """
-    cd = CityDistrict(environment, agg_objective)
+    cd = CityDistrict(environment, district_objective)
     # noinspection PyListCreation
     building_list = []
     building_list.extend(generate_tabula_buildings(environment,

@@ -3,6 +3,7 @@ import pyomo.environ as pyomo
 
 from pycity_scheduling.classes.optimization_entity import OptimizationEntity
 
+
 class Constraint:
     """
     Base class for all generic constraints.
@@ -21,6 +22,7 @@ class Constraint:
             be applied to.
         """
         raise NotImplementedError()
+
 
 class LowerActivationLimit(Constraint):
     """
@@ -72,6 +74,7 @@ class LowerActivationLimit(Constraint):
 
             # Couple state to operating variable
             orig_var = getattr(m, self.var_name + "_vars")
+
             def p_state_rule(model, t):
                 orig_var = getattr(m, self.var_name + "_vars")
                 var = getattr(m, self.var_name + "_State_vars")

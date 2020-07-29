@@ -105,12 +105,13 @@ class Battery(ElectricalEntity, bat.Battery):
                     return model.E_El_vars[self.op_horizon-1] >= self.E_El_Max * self.SOC_Ini
             m.E_end_constr = pyomo.Constraint(rule=e_end_rule)
 
-
             if mode == "integer":
                 m.P_State_vars = pyomo.Var(m.t, domain=pyomo.Binary)
+
                 def c_rule(model, t):
                     return model.P_El_Demand_vars[t] <= model.P_State_vars[t] * self.P_El_Max_Charge
                 m.E_charge_constr = pyomo.Constraint(m.t, rule=c_rule)
+
                 def d_rule(model, t):
                     return model.P_El_Supply_vars[t] <= (1 - model.P_State_vars[t]) * self.P_El_Max_Discharge
                 m.E_discharge_constr = pyomo.Constraint(m.t, rule=d_rule)

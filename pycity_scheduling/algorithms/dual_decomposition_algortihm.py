@@ -3,8 +3,7 @@ import pyomo.environ as pyomo
 from pyomo.solvers.plugins.solvers.persistent_solver import PersistentSolver
 from pyomo.opt import SolverStatus, TerminationCondition
 
-from pycity_scheduling.classes import (Building, Photovoltaic,
-                                       WindEnergyConverter)
+from pycity_scheduling.classes import (Building, Photovoltaic, WindEnergyConverter)
 from pycity_scheduling.exception import (MaxIterationError, NonoptimalError)
 from pycity_scheduling.util import populate_models
 
@@ -35,14 +34,14 @@ def dual_decomposition(city_district, optimizer="gurobi_persistent", mode="conve
         protected from deviations. Second entry defines the magnitude of
         deviations which are considered.
     debug : bool, optional
-        Specify wether detailed debug information shall be printed.
+        Specify whether detailed debug information shall be printed.
     """
 
-    OP_HORIZON = city_district.op_horizon
+    op_horizon = city_district.op_horizon
     nodes = city_district.nodes
 
     iteration = 0
-    lambdas = np.zeros(OP_HORIZON)
+    lambdas = np.zeros(op_horizon)
     r_norms = [np.inf]
     P_El_Schedules = {}
 
@@ -53,11 +52,11 @@ def dual_decomposition(city_district, optimizer="gurobi_persistent", mode="conve
         models[0].simple_var = pyomo.Var(domain=pyomo.Reals, bounds=(None, None), initialize=0)
         models[0].simple_constr = pyomo.Constraint(expr=models[0].simple_var == 1)
 
-    P_El_Schedules[0] = np.zeros(OP_HORIZON)
+    P_El_Schedules[0] = np.zeros(op_horizon)
 
     for node_id, node in nodes.items():
         node['entity'].update_model(mode, robustness=robustness)
-        P_El_Schedules[node_id] = np.zeros(OP_HORIZON)
+        P_El_Schedules[node_id] = np.zeros(op_horizon)
 
     city_district.update_model(mode)
 
@@ -112,16 +111,16 @@ def dual_decomposition(city_district, optimizer="gurobi_persistent", mode="conve
             if persistent:
                 optimizers[node_id].set_objective(model.o)
                 result = optimizers[node_id].solve(save_results=False, load_solutions=False)
-                optimizers[node_id].load_vars([entity.model.P_El_vars[t] for t in range(OP_HORIZON)])
+                optimizers[node_id].load_vars([entity.model.P_El_vars[t] for t in range(op_horizon)])
             else:
                 result = optimizers[node_id].solve(model)
-            if result.solver.termination_condition != TerminationCondition.optimal or result.solver.status != SolverStatus.ok:
+            if result.solver.termination_condition != TerminationCondition.optimal or \
+                    result.solver.status != SolverStatus.ok:
                 if debug:
                     import pycity_scheduling.util.debug as debug
                     debug.analyze_model(model, optimizers[node_id], result)
                 raise NonoptimalError("Could not retrieve schedule from model.")
-            np.copyto(P_El_Schedules[node_id],
-                      list(entity.model.P_El_vars.extract_values().values()))
+            np.copyto(P_El_Schedules[node_id], list(entity.model.P_El_vars.extract_values().values()))
 
         # ----------------------
         # 2) optimize aggregator
@@ -142,10 +141,11 @@ def dual_decomposition(city_district, optimizer="gurobi_persistent", mode="conve
         if persistent:
             optimizers[0].set_objective(model.o)
             result = optimizers[0].solve(save_results=False, load_solutions=False)
-            optimizers[0].load_vars([city_district.model.P_El_vars[t] for t in range(OP_HORIZON)])
+            optimizers[0].load_vars([city_district.model.P_El_vars[t] for t in range(op_horizon)])
         else:
             result = optimizers[0].solve(model)
-        if result.solver.termination_condition != TerminationCondition.optimal or result.solver.status != SolverStatus.ok:
+        if result.solver.termination_condition != TerminationCondition.optimal or \
+                result.solver.status != SolverStatus.ok:
             if debug:
                 import pycity_scheduling.util.debug as debug
                 debug.analyze_model(model, optimizers[0], result)
@@ -165,7 +165,7 @@ def dual_decomposition(city_district, optimizer="gurobi_persistent", mode="conve
         # ------------------------------------------
 
         r_norms.append(0)
-        r = np.zeros(OP_HORIZON)
+        r = np.zeros(op_horizon)
         np.copyto(r, -P_El_Schedules[0])
         for node_id in nodes.keys():
             r += P_El_Schedules[node_id]

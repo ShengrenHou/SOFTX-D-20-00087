@@ -169,7 +169,6 @@ class CurtailableLoad(ElectricalEntity, ed.ElectricalDemand):
                 "Mode %s is not implemented by CHP." % str(mode)
             )
 
-
     def update_model(self, mode="convex"):
         super(CurtailableLoad, self).update_model(mode)
         m = self.model

@@ -123,9 +123,9 @@ class TestSubpackage(unittest.TestCase):
     def test_get_incr_uncertainty(self):
         # Warning: This is a statistical test. There is always a chance it may
         # fail, even if the function is working correctly. If so, try running
-        # again or increse `n`.
+        # again or increase `n`.
         import statistics as stat
-        n = 1000
+        n = 100000
         a = np.ones(n)
         b = np.ones(n)
         msg = "Might be a statistical error, try running again."
