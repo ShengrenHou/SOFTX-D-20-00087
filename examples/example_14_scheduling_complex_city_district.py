@@ -7,9 +7,9 @@ import pycity_scheduling.util.factory as factory
 import pycity_scheduling.algorithms as algs
 from pycity_scheduling.classes import *
 
-# This example is built upon the district setup as defined in example 'district_generator_01.py'.
+# This example is built upon the district setup as defined in example 'example_12_district_generator.py'.
 # However, the city district scenario contains more than 100 buildings and is hence considered complex.
-env = factory.generate_standard_environment()
+env = factory.generate_standard_environment(initial_date=(2018, 12, 6), step_size=900, op_horizon=96)
 
 # 75 single-family houses
 num_sfh = 75
@@ -95,5 +95,3 @@ plt.ylabel("City District Power [kW]")
 plt.xlim((0, env.timer.timestepsUsedHorizon - 1))
 plt.title("Complex City District Scenario - Schedule")
 plt.show()
-
-# ToDo: Why WEC is not working?!

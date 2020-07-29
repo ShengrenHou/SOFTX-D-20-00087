@@ -1,7 +1,13 @@
-import pycity_scheduling.util.factory as factory
-import pycity_scheduling.util.debug as debug
+import matplotlib.pyplot as plt
+from matplotlib import gridspec
 
-env = factory.generate_standard_environment()
+import numpy as np
+
+import pycity_scheduling.util.factory as factory
+from pycity_scheduling.util import calculate_flexibility_potential
+
+# This example is built upon the same district setup as defined in example 'example_12_district_generator.py'
+env = factory.generate_standard_environment(initial_date=(2018, 12, 6), step_size=900, op_horizon=96)
 
 # 20 single-family houses
 num_sfh = 20
@@ -26,12 +32,13 @@ sfh_heating_distribution = {
 # 50% of buildings have a battery, 80% have a rooftop photovoltaic unit
 # The values are rounded in case they cannot be perfectly matched to the given number of buildings.
 sfh_device_probs = {
-    'FL': 1,
+    'FL': 1.0,
     'DL': 0.2,
     'EV': 0.3,
     'BAT': 0.5,
     'PV': 0.8,
 }
+
 # 5 multi-family houses, number of apartments stems from Tabula:
 num_mfh = 5
 mfh_distribution = {
@@ -45,7 +52,7 @@ mfh_heating_distribution = {
     'EH': 0.4,
 }
 mfh_device_probs = {
-    'FL': 1,
+    'FL': 1.0,
     'DL': 0.2,
     'EV': 0.2,
     'BAT': 0.4,
@@ -57,7 +64,14 @@ district = factory.generate_tabula_district(env, num_sfh, num_mfh,
                                             sfh_device_probs,
                                             mfh_distribution,
                                             mfh_heating_distribution,
-                                            mfh_device_probs)
+                                            mfh_device_probs,
+                                            district_objective='peak-shaving',
+                                            building_objective='none'
+                                            )
 
-# Hierarchically print the district and all buildings/entities:
-debug.print_district(district, 2)
+# Quantify the city district's maximum operational flexibility potential:
+flex = calculate_flexibility_potential(city_district=district, algorithm="central", reference_algorithm="stand-alone")
+
+# Print the flexibility metric:
+np.set_printoptions(formatter={'float': '{: >8.3f}'.format})
+print('Absolute flex. gain (kWh):    {: >8.3f}'.format(flex))
