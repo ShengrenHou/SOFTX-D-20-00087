@@ -47,6 +47,7 @@ def _calculate_dl_times(timer):
     ]
     return dl_time_ranges
 
+
 def _distribute(d, number):
     """Generates amounts based on distribution and total number and minimizes rounding error
 

@@ -18,14 +18,15 @@ class CityDistrict(ElectricalEntity, cd.CityDistrict):
         environment : Environment
         objective : str, optional
             Objective for the aggregator. Default is 'price'.
-            - 'price' : Optimize for the prices given by `prices.da_prices`.
-            - 'peak-shaving' : Try to flatten the scheudle as much as
-                               possible.
-            - 'max-consumption' : Try to reduce the maximum of the absolute values
-                                  of the schedule as much as possible.
+            - 'price' : Optimize for the minimum total cost given by `prices.da_prices`.
+            - 'peak-shaving' : Try to 'flatten' the schedule as much as possible.
+            - 'max-consumption' : Try to minimize the maximum power subscription.
+            - 'co2' : Optimize for the minimum total co2 emissions given by `prices.co2_prices`.
+            - valley-filling : Try to fill the 'valleys' given by a reference power profile.
+            - flexibility-quantification: To be used to quantify the flexibility potential of the city district only.
             - 'none' : No objective.
         valley_profile : np.ndarray, optional
-            Profile to be filled with valley filling.
+            Profile to be filled by applying valley filling.
         """
         super().__init__(environment)
         self._long_ID = "CD_" + self._ID_string

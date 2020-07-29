@@ -12,6 +12,7 @@ __all__ = [
     'get_uncertainty',
     'compute_profile',
     'get_schedule',
+    'calculate_flexibility_potential',
 ]
 
 
@@ -251,3 +252,42 @@ def get_schedule(entity, schedule_type=None, timestep=None, energy=False,
     if timestep:
         sched = sched[:timestep]
     return sched
+
+
+def calculate_flexibility_potential(city_district, algorithm="central", reference_algorithm="stand-alone"):
+    """Calculate and quantify the operational flexibility potential for a certain city district.
+
+
+    Parameters
+    ----------
+    city_district : pycity_scheduling.classes.CityDistrict
+        District for which the flexibility potential should be quantified.
+    algorithm : str
+        Define which algorithm should be used for the flexibility potential quantification purposes.
+        Must be one of 'exchange-admm', 'dual-decompostition', 'stand-alone', 'local' or 'central'.
+        Default: 'central'.
+    reference_algorithm : str
+        Define which algorithm should be used as the reference for the flexibility potential quantification purposes.
+        Must be one of 'exchange-admm', 'dual-decompostition', 'stand-alone', 'local' or 'central'.
+        Default: 'stand-alone'.
+
+    Returns
+    -------
+    float :
+        City district operational flexibility potential in kWh.
+    """
+    from pycity_scheduling.util.metric import absolute_flexibility_gain
+    from pycity_scheduling.algorithms import algorithms
+
+    city_district.copy_schedule(dst="tmp")
+
+    f = algorithms[reference_algorithm]
+    f(city_district)
+    city_district.copy_schedule("flexibility-potential-quantification-ref")
+    city_district.objective = 'flexibility-quantification'  # ToDo: Use 'setObjective()' function when implemented.
+    f = algorithms[algorithm]
+    f(city_district)
+    flex = absolute_flexibility_gain(city_district, "flexibility-potential-quantification-ref")
+
+    city_district.copy_schedule(src="tmp")
+    return flex

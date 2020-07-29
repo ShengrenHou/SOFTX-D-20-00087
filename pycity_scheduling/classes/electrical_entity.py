@@ -79,6 +79,6 @@ class ElectricalEntity(OptimizationEntity):
                 return 0
         if self.objective == "max-consumption":
             if coeff < 0:
-                raise ValueError("Setting a coefficient below zero is not supported for the max-consumption objective")
+                raise ValueError("Setting a coefficient below zero is not supported for the max-consumption objective.")
             return coeff * self.model.max_consumption_var
         return super().get_objective(coeff)
