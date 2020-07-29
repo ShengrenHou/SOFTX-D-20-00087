@@ -46,14 +46,25 @@ class ElectricalEntity(OptimizationEntity):
                 def p_generation_rule(model, t):
                     return model.max_consumption_var >= -m.P_El_vars[t]
                 m.P_gen_constr = pyomo.Constraint(m.t, rule=p_generation_rule)
+
+            if self.objective == "flexibility-quantification":
+                m.max_p_flex_var = pyomo.Var(m.t, domain=pyomo.Reals, bounds=(0, None), initialize=0)
+
+                def max_p_flex_consumption_rule(model, t):
+                    return model.max_p_flex_var[t] >= m.P_El_vars[t]
+                m.max_p_flex_cons_constr = pyomo.Constraint(m.t, rule=max_p_flex_consumption_rule)
+
+                def max_p_flex_generation_rule(model, t):
+                    return model.max_p_flex_var[t] >= -m.P_El_vars[t]
+                m.max_p_flex_gen_constr = pyomo.Constraint(m.t, rule=max_p_flex_generation_rule)
         else:
-            raise ValueError(
-                "Mode %s is not implemented by electric entity." % str(mode)
-                )
+            raise ValueError("Mode %s is not implemented by electrical entity." % str(mode))
 
     def get_objective(self, coeff=1):
         if self.objective == 'peak-shaving':
             return coeff * pyomo.sum_product(self.model.P_El_vars, self.model.P_El_vars)
+        if self.objective == 'flexibility-quantification':
+            return coeff * pyomo.sum_product(self.model.max_p_flex_var, self.model.max_p_flex_var)
         if self.objective in ['price', 'co2']:
             if self.objective == 'price':
                 prices = self.environment.prices.tou_prices
