@@ -7,11 +7,11 @@ from pycity_scheduling.util.metric import calculate_costs, peak_to_average_ratio
                                           self_consumption, autarky, absolute_flexibility_gain
 
 env = factory.generate_standard_environment(step_size=900, op_horizon=96)
-# Make it attractive for the consumer to shift demand into second half of the
+# Make it attractive for the consumers to shift demand into the second half of the
 # scheduling period
 env.prices.tou_prices = np.array([20]*48 + [10]*48)
 
-# Aggregator objective is peak-shaving
+# City district / aggregator objective is peak-shaving
 cd = classes.CityDistrict(env, objective='peak-shaving')
 # Fixed load of constant 10 kW, space heating with constant 10 kW load, thermal
 # storage with 20 kWh and electric heater with 20 kW
@@ -25,7 +25,7 @@ algs.stand_alone_optimization(cd)
 # Results are now in the _Ref schedules
 bd.save_ref_schedule()
 cd.save_ref_schedule()
-# Normal scheduling with aggregator and client objectives
+# Normal scheduling with aggregator and customer objectives
 algs.central_optimization(cd)
 
 
