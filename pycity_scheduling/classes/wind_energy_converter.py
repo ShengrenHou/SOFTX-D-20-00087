@@ -47,7 +47,10 @@ class WindEnergyConverter(ElectricalEntity, wec.WindEnergyConverter):
         log_wind = self._logWindProfile(total_wind)
         return np.interp(log_wind, self.velocity, self.power, right=0)
 
-    def update_model(self, mode=""):
+    def populate_model(self, model, mode="convex", robustness=None):
+        super().populate_model(model, mode)
+
+    def update_model(self, mode="", robustness=None):
         m = self.model
         timestep = self.timestep
 
@@ -79,5 +82,5 @@ class WindEnergyConverter(ElectricalEntity, wec.WindEnergyConverter):
         m = self.model
 
         s = pyomo.sum_product(m.P_El_vars, m.P_El_vars)
-        s += -2 * pyomo.sum_product(m.P_El_Supply[self.op_slice], m.P_El_vars)
+        s += -2 * pyomo.sum_product(self.P_El_Supply[self.op_slice], m.P_El_vars)
         return coeff * s

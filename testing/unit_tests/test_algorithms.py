@@ -48,6 +48,12 @@ class TestAlgorithms(unittest.TestCase):
         sh = SpaceHeating(e, method=0, loadcurve=load)
         ap.addEntity(sh)
 
+        wec = WindEnergyConverter(e, [50, 50], [0, 0], force_renewables=False)
+        cd.addEntity(wec, [0, 0])
+
+        pv = Photovoltaic(e, 0, 0.5, force_renewables=False)
+        cd.addEntity(pv, [0, 0])
+
         self.timer = t
         self.cd = cd
         self.bd1 = bd1

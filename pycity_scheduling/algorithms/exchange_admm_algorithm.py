@@ -3,8 +3,7 @@ import pyomo.environ as pyomo
 from pyomo.solvers.plugins.solvers.persistent_solver import PersistentSolver
 from pyomo.opt import SolverStatus, TerminationCondition
 
-from pycity_scheduling.classes import (Building, Photovoltaic,
-                                       WindEnergyConverter)
+from pycity_scheduling.classes import (Building, Photovoltaic, WindEnergyConverter)
 from pycity_scheduling.exception import (MaxIterationError, NonoptimalError)
 from pycity_scheduling.util import populate_models
 
@@ -161,11 +160,13 @@ def exchange_admm(city_district, optimizer="gurobi_persistent", mode="convex", m
 
             if persistent:
                 optimizers[node_id].set_objective(model.o)
-                result = optimizers[node_id].solve()
+                result = optimizers[node_id].solve(save_results=False, load_solutions=False)
+                optimizers[node_id].load_vars([entity.model.P_El_vars[t] for t in range(op_horizon)])
             else:
                 result = optimizers[node_id].solve(model)
 
-            if result.solver.termination_condition != TerminationCondition.optimal or result.solver.status != SolverStatus.ok:
+            if result.solver.termination_condition != TerminationCondition.optimal or \
+                    result.solver.status != SolverStatus.ok:
                 if debug:
                     import pycity_scheduling.util.debug as debug
                     debug.analyze_model(model, optimizers[node_id], result)
@@ -200,10 +201,12 @@ def exchange_admm(city_district, optimizer="gurobi_persistent", mode="convex", m
 
         if persistent:
             optimizers[0].set_objective(model.o)
-            result = optimizers[0].solve()
+            result = optimizers[0].solve(save_results=False, load_solutions=False)
+            optimizers[0].load_vars([city_district.model.P_El_vars[t] for t in range(op_horizon)])
         else:
             result = optimizers[0].solve(model)
-        if result.solver.termination_condition != TerminationCondition.optimal or result.solver.status != SolverStatus.ok:
+        if result.solver.termination_condition != TerminationCondition.optimal or \
+                result.solver.status != SolverStatus.ok:
             if debug:
                 import pycity_scheduling.util.debug as debug
                 debug.analyze_model(model, optimizers[0], result)
@@ -243,9 +246,13 @@ def exchange_admm(city_district, optimizer="gurobi_persistent", mode="convex", m
             i1 += op_horizon
         s_norms.append(np.linalg.norm(s))
 
+    if persistent:
+        optimizers[0].load_vars()
     city_district.update_schedule()
-    for entity in city_district.get_lower_entities():
-        entity.update_schedule()
+    for node_id, node in nodes.items():
+        if persistent:
+            optimizers[node_id].load_vars()
+        node['entity'].update_schedule()
 
     # if settings.BENCHMARK:
     #     print("\nNumber of ADMM iterations: {0}".format(iteration))

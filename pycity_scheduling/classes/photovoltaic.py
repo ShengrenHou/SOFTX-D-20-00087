@@ -55,7 +55,10 @@ class Photovoltaic(ElectricalEntity, pv.PV):
         ts = self.timer.time_in_year(from_init=True)
         self.P_El_Supply = self.totalPower[ts:ts+self.simu_horizon] / 1000
 
-    def update_model(self, mode=""):
+    def populate_model(self, model, mode="convex", robustness=None):
+        super().populate_model(model, mode)
+
+    def update_model(self, mode="", robustness=None):
         m = self.model
         timestep = self.timestep
 
@@ -87,5 +90,5 @@ class Photovoltaic(ElectricalEntity, pv.PV):
         m = self.model
 
         s = pyomo.sum_product(m.P_El_vars, m.P_El_vars)
-        s += -2 * pyomo.sum_product(m.P_El_Supply[self.op_slice], m.P_El_vars)
+        s += -2 * pyomo.sum_product(self.P_El_Supply[self.op_slice], m.P_El_vars)
         return coeff * s
