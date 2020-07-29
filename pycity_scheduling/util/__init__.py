@@ -180,9 +180,11 @@ def populate_models(city_district, mode, algorithm, robustness):
             entity.populate_model(m, mode, robustness)
             P_El_var_list.append(entity.model.P_El_vars)
         city_district.populate_model(m, mode)
+
         def p_el_couple_rule(model, t):
             return city_district.model.P_El_vars[t] == pyomo.quicksum(P_El_var[t] for P_El_var in P_El_var_list)
         m.p_coupl_constr = pyomo.Constraint(city_district.model.t, rule=p_el_couple_rule)
+
         models[0] = m
     elif algorithm in ['exchange-admm', 'dual-decomposition']:
         m = pyomo.ConcreteModel()

@@ -50,12 +50,12 @@ class DeferrableLoad(ElectricalEntity, ed.ElectricalDemand):
 
         self.P_El_Nom = P_El_Nom
         self.E_Consumption = E_Consumption
-        self.load_time = util.compute_profile(self.timer, load_time,
-                                              lt_pattern)
+        self.load_time = util.compute_profile(self.timer, load_time, lt_pattern)
+
         if len(load_time) != self.op_horizon:
             warn(
-                ("The DeferrableLoad {} will always run once in the op_horizon and not once in the lt_pattern\n" +
-                 "If a different behaviour is intended, creating multiple DeferrableLoads should be considered")
+                ("The DeferrableLoad {} will always run once in the op_horizon and not once in the lt_pattern.\n" +
+                 "If a different behaviour is intended, initializing multiple DeferrableLoads should be considered.")
                 .format(self._long_ID)
             )
 

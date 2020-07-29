@@ -17,7 +17,7 @@ class CityDistrict(ElectricalEntity, cd.CityDistrict):
         ----------
         environment : Environment
         objective : str, optional
-            Objective for the aggregator. Defaults to 'price'.
+            Objective for the aggregator. Default is 'price'.
             - 'price' : Optimize for the prices given by `prices.da_prices`.
             - 'peak-shaving' : Try to flatten the scheudle as much as
                                possible.

@@ -111,8 +111,8 @@ class SpaceHeating(ThermalEntity, sh.SpaceHeating):
         timestep = self.timestep
 
         for t in self.op_time_vec:
-            m.P_Th_vars.setlb(self.P_Th_Schedule[timestep + t])
-            m.P_Th_vars.setub(self.P_Th_Schedule[timestep + t])
+            m.P_Th_vars[t].setlb(self.P_Th_Schedule[timestep + t])
+            m.P_Th_vars[t].setub(self.P_Th_Schedule[timestep + t])
 
     def new_schedule(self, schedule):
         super().new_schedule(schedule)
