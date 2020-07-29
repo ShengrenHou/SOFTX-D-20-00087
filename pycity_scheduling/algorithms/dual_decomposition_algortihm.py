@@ -35,16 +35,23 @@ def dual_decomposition(city_district, optimizer="gurobi_persistent", mode="conve
         protected from deviations. Second entry defines the magnitude of
         deviations which are considered.
     debug : bool, optional
-        Specify wether detailed debug information shall be printed.
+        Specify whether detailed debug information shall be printed.
+
+    Returns
+    -------
+    int :
+        Number of iterations.
+    numpy.ndarray of float :
+        Norms of r for all iterations.
+    numpy.ndarray of float :
+        Shadow price vector lambda after last iteration.
     """
 
-    OP_HORIZON = city_district.op_horizon
     nodes = city_district.nodes
 
     iteration = 0
-    lambdas = np.zeros(OP_HORIZON)
+    lambdas = np.zeros(city_district.op_horizon)
     r_norms = [np.inf]
-
 
     if models is None:
         models = populate_models(city_district, mode, 'dual-decomposition', robustness)
@@ -111,7 +118,8 @@ def dual_decomposition(city_district, optimizer="gurobi_persistent", mode="conve
                 result = optimizers[node_id].solve()
             else:
                 result = optimizers[node_id].solve(model)
-            if result.solver.termination_condition != TerminationCondition.optimal or result.solver.status != SolverStatus.ok:
+            if result.solver.termination_condition != TerminationCondition.optimal or \
+                    result.solver.status != SolverStatus.ok:
                 if debug:
                     import pycity_scheduling.util.debug as debug
                     debug.analyze_model(model, optimizers[node_id], result)
@@ -139,7 +147,8 @@ def dual_decomposition(city_district, optimizer="gurobi_persistent", mode="conve
             result = optimizers[0].solve()
         else:
             result = optimizers[0].solve(model)
-        if result.solver.termination_condition != TerminationCondition.optimal or result.solver.status != SolverStatus.ok:
+        if result.solver.termination_condition != TerminationCondition.optimal or \
+                result.solver.status != SolverStatus.ok:
             if debug:
                 import pycity_scheduling.util.debug as debug
                 debug.analyze_model(model, optimizers[0], result)
@@ -151,7 +160,7 @@ def dual_decomposition(city_district, optimizer="gurobi_persistent", mode="conve
         # ----------------------
 
         t1 = city_district.timer.currentTimestep
-        t2 = t1 + OP_HORIZON
+        t2 = t1 + city_district.op_horizon
         lambdas -= rho * city_district.P_El_Schedule[t1:t2]
         for node in nodes.values():
             lambdas += rho * node['entity'].P_El_Schedule[t1:t2]
@@ -161,7 +170,7 @@ def dual_decomposition(city_district, optimizer="gurobi_persistent", mode="conve
         # ------------------------------------------
 
         r_norms.append(0)
-        r = np.zeros(OP_HORIZON)
+        r = np.zeros(city_district.op_horizon)
         np.copyto(r, -city_district.P_El_Schedule[t1:t2])
         for node in nodes.values():
             r += node["entity"].P_El_Schedule[t1:t2]

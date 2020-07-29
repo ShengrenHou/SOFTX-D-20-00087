@@ -14,7 +14,7 @@ def exchange_admm(city_district, optimizer="gurobi_persistent", mode="convex", m
     """Perform Exchange ADMM on a city district.
 
     Do the scheduling of electrical energy in a city district using the
-    Exchange ADMM algorithm, concerning different objectives for clients and
+    Exchange ADMM algorithm, concerning different objectives for customers and
     the aggregator.
 
     Parameters
@@ -83,7 +83,6 @@ def exchange_admm(city_district, optimizer="gurobi_persistent", mode="convex", m
     s = np.zeros(n * op_horizon)
     r_norms = [np.inf]
     s_norms = [np.inf]
-
 
     if models is None:
         models = populate_models(city_district, mode, 'exchange-admm', robustness)
@@ -175,7 +174,6 @@ def exchange_admm(city_district, optimizer="gurobi_persistent", mode="convex", m
                 current_P_El_Schedule[node_id],
                 [pyomo.value(entity.model.P_El_vars[t]) for t in entity.op_time_vec]
             )
-
 
         # ----------------------
         # 2) optimize aggregator
