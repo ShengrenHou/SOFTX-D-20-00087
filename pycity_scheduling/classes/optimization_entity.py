@@ -142,6 +142,17 @@ class OptimizationEntity(object):
             schedule[op_slice] = np.pad(values, (0, len(schedule[op_slice]) - len(values)), mode='constant',
                                         constant_values=pad)
 
+    def setObjective(self, objective):
+        """Set a new objective to be returned by get_objective.
+
+        Parameters
+        ----------
+        objective: str
+        Objective for the scheduling.
+        - 'none' : No objective (leave all flexibility to other participants).
+        """
+        self.objective = objective
+
     def get_objective(self, coeff=1):
         """Objective function for entity level scheduling.
 

@@ -916,6 +916,32 @@ class TestElectricalEntity(unittest.TestCase):
         self.ee.populate_model(model)
         self.ee.get_objective()
 
+    def test_new_objective(self):
+        model = pyomo.ConcreteModel()
+        self.ee.populate_model(model)
+        for t in range(4):
+            self.ee.model.P_El_vars[t].setlb(t)
+            self.ee.model.P_El_vars[t].setub(t)
+        self.ee.setObjective("peak-shaving")
+        obj = self.ee.get_objective()
+        model.o = pyomo.Objective(expr=obj)
+        solve_model(model)
+        obj = self.ee.get_objective()
+        self.assertEqual(sum(t**2 for t in range(4)), pyomo.value(obj))
+        self.ee.setObjective("max-consumption")
+        with self.assertRaises(ValueError):
+            obj = self.ee.get_objective()
+
+        model = pyomo.ConcreteModel()
+        self.ee.populate_model(model)
+        for t in range(4):
+            self.ee.model.P_El_vars[t].setlb(t)
+            self.ee.model.P_El_vars[t].setub(t)
+        obj = self.ee.get_objective()
+        model.o = pyomo.Objective(expr=obj)
+        solve_model(model)
+
+        self.assertEqual(3, pyomo.value(obj))
 
 class TestElectricalHeater(unittest.TestCase):
     def setUp(self):

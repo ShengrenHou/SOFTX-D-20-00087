@@ -78,6 +78,8 @@ class ElectricalEntity(OptimizationEntity):
             else:
                 return 0
         if self.objective == "max-consumption":
+            if not hasattr(self.model, "max_consumption_var"):
+                raise ValueError("'max-consumption' needs to be selected during populate_model call.")
             if coeff < 0:
                 raise ValueError("Setting a coefficient below zero is not supported for the max-consumption objective.")
             return coeff * self.model.max_consumption_var
