@@ -257,7 +257,7 @@ def generate_tabula_buildings(environment,
             bes.addDevice(pv)
 
         if bat_list[i]:
-            p_el = max(sum(e.P_El_Schedule for e in filter_entities(bd, 'FL')))
+            p_el = 13.5 * b['apartments']
             bat = Battery(environment, E_El_max=p_el, P_El_max_charge=4.6,
                           P_El_max_discharge=4.6, soc_init=0.5)
             bes.addDevice(bat)
