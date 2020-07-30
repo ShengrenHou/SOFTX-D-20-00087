@@ -169,7 +169,7 @@ class OptimizationEntity(object):
         ExpressionBase :
             Objective function.
         """
-        if self.objective is None or self.objective is 'none':
+        if self.objective is None or self.objective == 'none':
             return 0
         else:
             raise ValueError(
