@@ -25,12 +25,13 @@ class ElectricalVehicle(Battery):
             Maximum charging power in [kW].
         soc_init : float, optional
             Initial state of charge. Defaults to 50%.
-        charging_time : array of binaries
+        charging_time : array of binaries, optional
             Indicator when electrical vehicle can be charged.
             `charging_time[t] == 0`: EV cannot be charged in t
             `charging_time[t] == 1`: EV can be charged in t
             It must contain at least one `0` otherwise the model will become
             infeasible. Its length has to be consistent with `ct_pattern`.
+            default: Charge only during day.
         ct_pattern : str, optional
             Define how the `charging_time` profile is to be used
             `None` : Profile matches simulation horizon.
@@ -44,7 +45,7 @@ class ElectricalVehicle(Battery):
 
         if charging_time is None:
             # load at night, drive during day
-            ts_per_day = int(86400 / self.time_slot)
+            ts_per_day = int(24 / self.time_slot)
             a = int(ts_per_day / 4)
             b = int(ts_per_day / 2)
             c = ts_per_day - a - b
