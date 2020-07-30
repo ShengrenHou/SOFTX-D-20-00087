@@ -1008,6 +1008,13 @@ class TestElectricVehicle(unittest.TestCase):
             coeff = obj.args[i].args[0].args[0]
             self.assertAlmostEqual(ref, coeff, places=5)
 
+    def test_no_charge_time(self):
+        e = get_env(6, 9)
+        ev = ElectricalVehicle(e, 37.0, 11.0)
+        assert_equal_array(ev.charging_time, [1]*9)
+        e = get_env(28, 96*24-12)
+        ev = ElectricalVehicle(e, 37.0, 11.0)
+        assert_equal_array(ev.charging_time, np.tile([1] * 24 + [0] * 48 + [1] * 24, 24)[:-12])
 
 class TestHeatPump(unittest.TestCase):
     def setUp(self):
