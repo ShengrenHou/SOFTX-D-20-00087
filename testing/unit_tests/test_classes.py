@@ -242,6 +242,35 @@ class TestBuilding(unittest.TestCase):
         bd5 = Building(env, "invalid")
         self.assertRaisesRegex(ValueError, ".*Building.*", bd5.get_objective)
 
+    def test_robustness(self):
+        model = pyomo.ConcreteModel()
+        env = self.bd.environment
+        bes = BuildingEnergySystem(env)
+        self.bd.addEntity(bes)
+        ts1 = ThermalEnergyStorage(env, 10)
+        bes.addDevice(ts1)
+        ts2 = ThermalEnergyStorage(env, 25)
+        bes.addDevice(ts2)
+
+        ap = Apartment(env)
+        self.bd.addEntity(ap)
+        loadcurve = np.array([15, 15, 10, 10])
+        sh = SpaceHeating(env, loadcurve=loadcurve)
+        ap.addEntity(sh)
+
+        eh = ElectricalHeater(env, 20)
+        bes.addDevice(eh)
+
+        self.bd.populate_model(model, robustness=(3, 0.5))
+        self.bd.update_model(model, robustness=(3, 0.5))
+        assert_equal_array(np.array([self.bd.model.lower_robustness_bounds[i].value for i in range(3)]),
+                           np.cumsum(loadcurve[:3])*0.5/4)
+        assert_equal_array(np.array([self.bd.model.upper_robustness_bounds[i].value for i in range(3)]),
+                           35 - np.cumsum(loadcurve[:3]) * 0.5 / 4)
+
+        self.assertEqual(17.5, self.bd.model.lower_robustness_bounds[3].value)
+        self.assertEqual(17.5, self.bd.model.upper_robustness_bounds[3].value)
+
     def testReset(self):
         env = self.bd.environment
         bes = BuildingEnergySystem(env)

@@ -114,23 +114,23 @@ class Building(EntityContainer, bd.Building):
 
     def _create_robust_constraints(self):
         m = self.model
-        tes_m = self.bes.tes.model
+        tes_ms = [tes.model for tes in self.bes.tes]
         m.lower_robustness_bounds = pyomo.Param(m.t, mutable=True)
         m.upper_robustness_bounds = pyomo.Param(m.t, mutable=True)
 
         def e_lower_rule(model, t):
-            return tes_m.E_Th_vars[t] >= model.lower_robustness_bounds[t]
+            return sum(tes.E_Th_vars[t] for tes in tes_ms) >= model.lower_robustness_bounds[t]
         m.lower_robustness_constr = pyomo.Constraint(m.t, rule=e_lower_rule)
 
         def e_upper_rule(model, t):
-            return tes_m.E_Th_vars[t] <= model.upper_robustness_bounds[t]
+            return sum(tes.E_Th_vars[t] for tes in tes_ms) <= model.upper_robustness_bounds[t]
         m.upper_robustness_constr = pyomo.Constraint(m.t, rule=e_upper_rule)
 
     def _update_robust_constraints(self, robustness):
         m = self.model
         timestep = self.timer.current_timestep
-        E_Th_Max = self.bes.tes.E_Th_Max
-        end_value = self.bes.tes.SOC_Ini * E_Th_Max
+        E_Th_Max = sum(tes.E_Th_Max for tes in self.bes.tes)
+        end_value = sum(tes.SOC_Ini * tes.E_Th_Max for tes in self.bes.tes)
         uncertain_P_Th = np.zeros(self.op_horizon)
         P_Th_Demand_sum = np.zeros(self.op_horizon)
 
@@ -171,7 +171,7 @@ class Building(EntityContainer, bd.Building):
             # set storage to uncertain_E_Th or set SOC_End to SOC_Ini to
             # prevent depletion of storage
             else:
-                if self.bes.tes.SOC_Ini <= 0.5:
+                if E_Th_Max / end_value <= 0.5:
                     end_value = max(end_value, uncertain_E_Th)
                 else:
                     end_value = min(end_value, E_Th_Max - uncertain_E_Th)
