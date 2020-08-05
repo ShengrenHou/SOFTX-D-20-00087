@@ -1,7 +1,7 @@
 import numpy as np
 import pyomo.environ as pyomo
 
-import pycity_base.classes.supply.ThermalEnergyStorage as tes
+import pycity_base.classes.supply.thermal_energy_storage as tes
 
 from .thermal_entity import ThermalEntity
 
@@ -41,7 +41,7 @@ class ThermalEnergyStorage(ThermalEntity, tes.ThermalEnergyStorage):
 
         # TODO: very simple storage model which assumes tFlow == tSurroundings
         self.Th_Loss_coeff = (
-            self.kLosses / self.capacity / self.cWater * self.time_slot * 3600
+            self.k_losses / self.capacity / self.cWater * self.time_slot * 3600
         )
 
         self.new_var("E_Th")

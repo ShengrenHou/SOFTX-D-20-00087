@@ -53,12 +53,12 @@ class OptimizationEntity(object):
     @property
     def op_horizon(self):
         """Number of time steps in a scheduling period."""
-        return self.timer.timestepsUsedHorizon
+        return self.timer.timesteps_used_horizon
 
     @property
     def op_time_vec(self):
         """Iterator over scheduling period."""
-        return range(self.timer.timestepsUsedHorizon)
+        return range(self.timer.timesteps_used_horizon)
 
     @property
     def simu_horizon(self):
@@ -79,13 +79,13 @@ class OptimizationEntity(object):
     @property
     def timestep(self):
         """Time step indicating the current scheduling."""
-        return self.timer.currentTimestep
+        return self.timer.current_timestep
 
     @property
     def op_slice(self):
         """Slice to select values of current scheduling from whole horizon."""
-        t1 = self.timer.currentTimestep
-        t2 = t1 + self.timer.timestepsUsedHorizon
+        t1 = self.timer.current_timestep
+        t2 = t1 + self.timer.timesteps_used_horizon
         return slice(t1, t2)
 
     def populate_model(self, model, mode=""):
@@ -126,7 +126,7 @@ class OptimizationEntity(object):
 
         Retrieve the solution from the scheduling model and write it to the
         schedule. The model must be optimal. The time / position of the
-        solution in the schedule is determined by `self.timer.currentTimestep`.
+        solution in the schedule is determined by `self.timer.current_timestep`.
         """
         op_slice = self.op_slice
         for name, schedule in self.schedule.items():

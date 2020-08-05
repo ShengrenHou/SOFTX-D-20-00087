@@ -1,6 +1,6 @@
 import numpy as np
 import pyomo.environ as pyomo
-import pycity_base.classes.demand.Apartment as apm
+import pycity_base.classes.demand.apartment as apm
 
 from .thermal_entity import ThermalEntity
 from .electrical_entity import ElectricalEntity

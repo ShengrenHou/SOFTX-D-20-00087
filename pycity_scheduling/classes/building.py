@@ -1,6 +1,6 @@
 import numpy as np
 import pyomo.environ as pyomo
-import pycity_base.classes.Building as bd
+import pycity_base.classes.building as bd
 from pycity_scheduling import util, classes
 
 from .entity_container import EntityContainer
@@ -92,7 +92,7 @@ class Building(EntityContainer, bd.Building):
             - `convex`  : Use linear constraints
             - `integer`  : Use same constraints as convex mode
         """
-        if not self.hasBes:
+        if not self.has_bes:
             raise AttributeError(
                 "No BES in %s\nModeling aborted." % str(self)
             )
@@ -103,13 +103,13 @@ class Building(EntityContainer, bd.Building):
             return 0 == model.P_Th_vars[t]
         m.P_equality_constr = pyomo.Constraint(m.t, rule=p_equality_rule)
 
-        if robustness is not None and self.bes.hasTes:
+        if robustness is not None and self.bes.has_tes:
             self._create_robust_constraints()
 
     def update_model(self, mode="", robustness=None):
         super().update_model(mode)
 
-        if robustness is not None and self.bes.hasTes:
+        if robustness is not None and self.bes.has_tes:
             self._update_robust_constraints(robustness)
 
     def _create_robust_constraints(self):
@@ -128,7 +128,7 @@ class Building(EntityContainer, bd.Building):
 
     def _update_robust_constraints(self, robustness):
         m = self.model
-        timestep = self.timer.currentTimestep
+        timestep = self.timer.current_timestep
         E_Th_Max = self.bes.tes.E_Th_Max
         end_value = self.bes.tes.SOC_Ini * E_Th_Max
         uncertain_P_Th = np.zeros(self.op_horizon)
@@ -179,6 +179,6 @@ class Building(EntityContainer, bd.Building):
                 m.upper_robustness_bounds[t] = end_value
 
     def get_lower_entities(self):
-        if self.hasBes:
+        if self.has_bes:
             yield self.bes
         yield from self.apartments

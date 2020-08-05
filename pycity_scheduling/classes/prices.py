@@ -3,7 +3,7 @@ import calendar
 import warnings
 
 import numpy as np
-import pycity_base.classes.Prices as pr
+import pycity_base.classes.prices as pr
 
 
 class Prices(pr.Prices):
@@ -48,7 +48,7 @@ class Prices(pr.Prices):
 
         root_dir = op.dirname(op.dirname(__file__))
         timesteps = timer.time_in_year()
-        factor = 900 / timer.timeDiscretization
+        factor = 900 / timer.time_discretization
 
         if da_prices is None:
             if self.da_price_cache is None:

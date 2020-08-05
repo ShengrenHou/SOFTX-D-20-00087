@@ -1,7 +1,7 @@
 import numpy as np
 import pyomo.environ as pyomo
 
-import pycity_base.classes.demand.ElectricalDemand as ed
+import pycity_base.classes.demand.electrical_demand as ed
 
 from pycity_scheduling.classes.electrical_entity import ElectricalEntity
 from pycity_scheduling import util

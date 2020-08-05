@@ -1,7 +1,7 @@
 import numpy as np
 import pyomo.environ as pyomo
 from pyomo.core.expr.numeric_expr import ExpressionBase
-import pycity_base.classes.demand.ElectricalDemand as ed
+import pycity_base.classes.demand.electrical_demand as ed
 
 from warnings import warn
 from .electrical_entity import ElectricalEntity
@@ -43,7 +43,7 @@ class DeferrableLoad(ElectricalEntity, ed.ElectricalDemand):
         ValueError :
             If `lt_pattern` does not match `load_time`.
         """
-        shape = environment.timer.timestepsTotal
+        shape = environment.timer.timesteps_total
         super().__init__(environment, 0, np.zeros(shape))
 
         self._long_ID = "DL_" + self._ID_string

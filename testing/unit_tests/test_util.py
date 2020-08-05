@@ -160,7 +160,7 @@ class TestSubpackage(unittest.TestCase):
 
 class TimerStub:
     def __init__(self):
-        self.timeDiscretization = 3600
+        self.time_discretization = 3600
         self.simu_horizon = 4
 
     @staticmethod

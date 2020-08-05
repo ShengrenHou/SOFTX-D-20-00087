@@ -1,6 +1,6 @@
 import numpy as np
 import pyomo.environ as pyomo
-import pycity_base.classes.CityDistrict as cd
+import pycity_base.classes.city_district as cd
 
 from .electrical_entity import ElectricalEntity
 

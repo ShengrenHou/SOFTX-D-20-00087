@@ -1,7 +1,7 @@
 import numpy as np
 import pyomo.environ as pyomo
 
-import pycity_base.classes.demand.SpaceHeating as sh
+import pycity_base.classes.demand.space_heating as sh
 
 from .thermal_entity import ThermalEntity
 from pycity_scheduling import util

@@ -1,4 +1,4 @@
-import pycity_base.classes.Environment as en
+import pycity_base.classes.environment as en
 
 
 class Environment(en.Environment):

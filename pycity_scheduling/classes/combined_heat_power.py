@@ -1,6 +1,6 @@
 import numpy as np
 import pyomo.environ as pyomo
-import pycity_base.classes.supply.CHP as chp
+import pycity_base.classes.supply.combined_heat_power as chp
 
 from .thermal_entity import ThermalEntity
 from .electrical_entity import ElectricalEntity

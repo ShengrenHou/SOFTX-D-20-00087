@@ -1,7 +1,7 @@
 import datetime
 import calendar
 import warnings
-import pycity_base.classes.Timer as ti
+import pycity_base.classes.timer as ti
 
 
 class Timer(ti.Timer):
@@ -52,18 +52,18 @@ class Timer(ti.Timer):
             raise ValueError(
                 "The difference from the starting point of the simulation "
                 "to the beginning of the year must be a multiple of "
-                "`timeDiscretization`."
+                "`time_discretization`."
             )
         # Workaround to make the weather instance calculate values for a whole
         # year.
         horizon = int(365 * 24 * 3600 / step_size)
         # if calendar.isleap(initial_date[0]):
         #     horizon += 24 * 3600 / step_size
-        super(Timer, self).__init__(timeDiscretization=step_size,
-                                    timestepsUsedHorizon=op_horizon,
-                                    timestepsHorizon=horizon,
-                                    timestepsTotal=horizon,
-                                    initialDay=initial_day)
+        super(Timer, self).__init__(time_discretization=step_size,
+                                    timesteps_used_horizon=op_horizon,
+                                    timesteps_horizon=horizon,
+                                    timesteps_total=horizon,
+                                    initial_day=initial_day)
 
         self.time_slot = step_size / 3600
         self._init_dt = self._dt
@@ -132,41 +132,38 @@ class Timer(ti.Timer):
 
         Move `self.mpc_step_width` timesteps forward.
         """
-        self.currentTimestep += self.mpc_step_width
+        self.current_timestep += self.mpc_step_width
         self._dt += datetime.timedelta(
-            seconds=self.timeDiscretization*self.mpc_step_width
+            seconds=self.time_discretization*self.mpc_step_width
         )
 
         # update values from parent class
-        self.currentOptimizationPeriod += 1
-        self.currentWeekday = self._dt.weekday() + 1
-        self.currentDayWeekend = self.currentWeekday >= 6
-        self.currentDay = self.time_in_year("days")
+        self.current_weekday = self._dt.weekday() + 1
+        self.current_day_weekend = self.current_weekday >= 6
+        self.current_day = self.time_in_year("days")
 
     def op_update(self):
         """Update Timer for a normal scheduling optimization.
 
-        Go `self.timestepsUsedHorizon` timesteps forward.
+        Go `self.timesteps_used_horizon` timesteps forward.
         """
-        self.currentTimestep += self.timestepsUsedHorizon
+        self.current_timestep += self.timesteps_used_horizon
         self._dt += datetime.timedelta(
-            seconds=self.timeDiscretization*self.timestepsUsedHorizon
+            seconds=self.time_discretization*self.timesteps_used_horizon
         )
 
         # update values from parent class
-        self.currentOptimizationPeriod += 1
-        self.currentWeekday = self._dt.weekday() + 1
-        self.currentDayWeekend = self.currentWeekday >= 6
-        self.currentDay = self.time_in_year("days")
+        self.current_weekday = self._dt.weekday() + 1
+        self.current_dayweekend = self.current_weekday >= 6
+        self.current_day = self.time_in_year("days")
 
     def reset(self):
         """Reset the Timer to the initial state."""
         self._dt = self._init_dt
-        self.currentTimestep = 0
-        self.currentOptimizationPeriod = 0
-        self.currentWeekday = self._dt.weekday() + 1
-        self.currentDayWeekend = self.currentWeekday >= 6
-        self.currentDay = self.time_in_year("days")
+        self.current_timestep = 0
+        self.current_weekday = self._dt.weekday() + 1
+        self.current_dayweekend = self.current_weekday >= 6
+        self.current_day = self.time_in_year("days")
 
     def time_in_year(self, unit="timesteps", from_init=False):
         """Time passed since the beginning of the year.
@@ -190,12 +187,12 @@ class Timer(ti.Timer):
             dt1 = self._dt
         seconds = (dt1 - dt0).total_seconds()
         if unit == "timesteps":
-            a, b = divmod(seconds, self.timeDiscretization)
+            a, b = divmod(seconds, self.time_discretization)
             if b > 0:
                 raise ValueError(
                     "The difference from the starting point of the simulation "
                     "to the beginning of the year must be a multiple of "
-                    "`timeDiscretization`."
+                    "`time_discretization`."
                 )
             return int(a)
         elif unit == "days":
@@ -226,12 +223,12 @@ class Timer(ti.Timer):
         dt0 -= datetime.timedelta(days=dt0.weekday())
         seconds = (dt1 - dt0).total_seconds()
         if unit == "timesteps":
-            a, b = divmod(seconds, self.timeDiscretization)
+            a, b = divmod(seconds, self.time_discretization)
             if b > 0:
                 raise ValueError(
                     "The difference from the starting point of the simulation "
                     "to the beginning of the year must be a multiple of "
-                    "`timeDiscretization`."
+                    "`time_discretization`."
                 )
             return int(a)
         elif unit == "days":
@@ -261,12 +258,12 @@ class Timer(ti.Timer):
         dt0 = datetime.datetime(dt1.year, dt1.month, dt1.day)
         seconds = (dt1 - dt0).total_seconds()
         if unit == "timesteps":
-            a, b = divmod(seconds, self.timeDiscretization)
+            a, b = divmod(seconds, self.time_discretization)
             if b > 0:
                 raise ValueError(
                     "The difference from the starting point of the simulation "
                     "to the beginning of the year must be a multiple of "
-                    "`timeDiscretization`."
+                    "`time_discretization`."
                 )
             return int(a)
         elif unit == "days":

@@ -1,7 +1,7 @@
 import numpy as np
 import pyomo.environ as pyomo
 
-import pycity_base.classes.supply.HeatPump as hp
+import pycity_base.classes.supply.heat_pump as hp
 
 from .thermal_entity import ThermalEntity
 from .electrical_entity import ElectricalEntity

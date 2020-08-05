@@ -82,8 +82,8 @@ class ElectricalVehicle(Battery):
         m.del_component("E_end_constr")
         def e_rule(model, t):
             delta = (
-                (self.etaCharge * model.P_El_Demand_vars[t]
-                 - (1/self.etaDischarge) * model.P_El_Supply_vars[t]
+                (self.eta_charge * model.P_El_Demand_vars[t]
+                 - (1/self.eta_discharge) * model.P_El_Supply_vars[t]
                  - model.P_El_Drive_vars[t])
                 * self.time_slot
             )

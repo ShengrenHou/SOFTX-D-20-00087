@@ -2,7 +2,7 @@ import numpy as np
 import pyomo.environ as pyomo
 from pyomo.core.expr.numeric_expr import ExpressionBase
 
-import pycity_base.classes.supply.PV as pv
+import pycity_base.classes.supply.photovoltaic as pv
 
 from .electrical_entity import ElectricalEntity
 
@@ -53,7 +53,7 @@ class Photovoltaic(ElectricalEntity, pv.PV):
         self.force_renewables = force_renewables
         self.getPower(currentValues=False)
         ts = self.timer.time_in_year(from_init=True)
-        self.P_El_Supply = self.totalPower[ts:ts+self.simu_horizon] / 1000
+        self.P_El_Supply = self.total_power[ts:ts+self.simu_horizon] / 1000
 
     def populate_model(self, model, mode="convex", robustness=None):
         super().populate_model(model, mode)
