@@ -31,7 +31,7 @@ class ThermalEnergyStorage(ThermalEntity, tes.ThermalEnergyStorage):
             `False` if it has to be greater or equal than the initial soc.
         """
         # Room temperature of 20 C and flow temperature of 55 C
-        capacity = E_Th_max / self.cWater / 35 * 3.6e6
+        capacity = E_Th_max / self.c_water / 35 * 3.6e6
         super().__init__(environment, 55, capacity, 55, 20, loss_factor)
         self._long_ID = "TES_" + self._ID_string
 
@@ -41,7 +41,7 @@ class ThermalEnergyStorage(ThermalEntity, tes.ThermalEnergyStorage):
 
         # TODO: very simple storage model which assumes tFlow == tSurroundings
         self.Th_Loss_coeff = (
-            self.k_losses / self.capacity / self.cWater * self.time_slot * 3600
+            self.k_losses / self.capacity / self.c_water * self.time_slot * 3600
         )
 
         self.new_var("E_Th")

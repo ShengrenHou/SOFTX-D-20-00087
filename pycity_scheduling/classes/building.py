@@ -114,7 +114,7 @@ class Building(EntityContainer, bd.Building):
 
     def _create_robust_constraints(self):
         m = self.model
-        tes_ms = [tes.model for tes in self.bes.tes]
+        tes_ms = [tes.model for tes in self.bes.tes_units]
         m.lower_robustness_bounds = pyomo.Param(m.t, mutable=True)
         m.upper_robustness_bounds = pyomo.Param(m.t, mutable=True)
 
@@ -129,8 +129,8 @@ class Building(EntityContainer, bd.Building):
     def _update_robust_constraints(self, robustness):
         m = self.model
         timestep = self.timer.current_timestep
-        E_Th_Max = sum(tes.E_Th_Max for tes in self.bes.tes)
-        end_value = sum(tes.SOC_Ini * tes.E_Th_Max for tes in self.bes.tes)
+        E_Th_Max = sum(tes.E_Th_Max for tes in self.bes.tes_units)
+        end_value = sum(tes.SOC_Ini * tes.E_Th_Max for tes in self.bes.tes_units)
         uncertain_P_Th = np.zeros(self.op_horizon)
         P_Th_Demand_sum = np.zeros(self.op_horizon)
 
