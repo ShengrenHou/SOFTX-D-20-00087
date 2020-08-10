@@ -60,8 +60,7 @@ class LowerActivationLimit(Constraint):
         self.var_name = var_name
         self.lower_activation_limit = lower_activation_limit
         o.new_var(var_name+"_State", dtype=np.bool, func=lambda model:
-                  np.fromiter((abs(getattr(model, self.var_name + "_vars")[t].value) > abs(0.01 * var_nom)
-                              for t in o.op_time_vec), dtype=np.bool))
+                  abs(o.schedule[self.var_name][o.op_slice]) > abs(0.01 * var_nom))
 
     def apply(self, m, mode):
         if mode == "integer" and self.lower_activation_limit != 0.0 and self.var_nom != 0.0:

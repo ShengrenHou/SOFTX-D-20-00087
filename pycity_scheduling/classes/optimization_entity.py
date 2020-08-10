@@ -3,6 +3,7 @@ import pyomo.environ as pyomo
 from pyomo.core.expr.numeric_expr import ExpressionBase
 from typing import Callable, Any
 
+from pycity_scheduling.util import extract_pyomo_values
 
 class OptimizationEntity(object):
     """
@@ -32,6 +33,7 @@ class OptimizationEntity(object):
         self.timer = environment.timer
         self.schedules = {'default': {}, 'Ref': {}}
 
+        self.__var_order__ = []
         self.__var_funcs__ = {}
         self.current_schedule = 'default'
         self.model = None
@@ -129,12 +131,13 @@ class OptimizationEntity(object):
         solution in the schedule is determined by `self.timer.current_timestep`.
         """
         op_slice = self.op_slice
-        for name, schedule in self.schedule.items():
+        for name in self.__var_order__:
+            schedule = self.schedule[name]
             if name in self.__var_funcs__ and not hasattr(self.model, name + "_vars"):
                 func = self.__var_funcs__[name]
                 schedule[op_slice] = func(self.model)
             else:
-                values = np.fromiter(getattr(self.model, name + "_vars").extract_values().values(), dtype=schedule.dtype)
+                values = extract_pyomo_values(getattr(self.model, name + "_vars"))
             if schedule.dtype == np.bool: # TODO is this still needed?
                 pad = False
             else:
@@ -232,6 +235,7 @@ class OptimizationEntity(object):
             self.__var_funcs__[name] = func
         for schedule in self.schedules.values():
             schedule[name] = np.full(self.timer.simu_horizon, 0, dtype=dtype)
+            self.__var_order__.append(name)
 
     def new_schedule(self, schedule):
         """Create a new schedule with default values.

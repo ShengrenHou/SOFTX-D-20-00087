@@ -5,7 +5,7 @@ from pyomo.opt import SolverStatus, TerminationCondition
 
 from pycity_scheduling.classes import (Building, Photovoltaic, WindEnergyConverter)
 from pycity_scheduling.exception import (MaxIterationError, NonoptimalError)
-from pycity_scheduling.util import populate_models
+from pycity_scheduling.util import populate_models, extract_pyomo_values
 
 
 def exchange_admm(city_district, optimizer="gurobi_persistent", mode="convex", models=None, beta=1.0, eps_primal=0.1,
@@ -171,10 +171,7 @@ def exchange_admm(city_district, optimizer="gurobi_persistent", mode="convex", m
                     import pycity_scheduling.util.debug as debug
                     debug.analyze_model(model, optimizers[node_id], result)
                 raise NonoptimalError("Could not retrieve schedule from model.")
-            np.copyto(
-                current_P_El_Schedule[node_id],
-                [pyomo.value(entity.model.P_El_vars[t]) for t in entity.op_time_vec]
-            )
+            current_P_El_Schedule[node_id] = extract_pyomo_values(entity.model.P_El_vars)
 
         # ----------------------
         # 2) optimize aggregator
@@ -211,10 +208,7 @@ def exchange_admm(city_district, optimizer="gurobi_persistent", mode="convex", m
                 import pycity_scheduling.util.debug as debug
                 debug.analyze_model(model, optimizers[0], result)
             raise NonoptimalError("Could not retrieve schedule from model.")
-        np.copyto(
-            current_P_El_Schedule[0],
-            [pyomo.value(city_district.model.P_El_vars[t]) for t in city_district.op_time_vec]
-        )
+        current_P_El_Schedule[0] = extract_pyomo_values(city_district.model.P_El_vars)
 
         # --------------------------
         # 3) incentive signal update

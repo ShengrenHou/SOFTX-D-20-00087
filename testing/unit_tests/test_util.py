@@ -9,6 +9,7 @@ import pycity_scheduling.util.generic_constraints as gen_constrs
 from pycity_scheduling.classes import *
 import pycity_scheduling.util.factory
 from pycity_scheduling.data.tabula_data import tabula_building_data
+from pycity_scheduling.exception import SchedulingError
 
 def _get_constr_count(block):
     return sum(len(data) for data in block.component_map(pyomo.Constraint).itervalues())
@@ -157,6 +158,100 @@ class TestSubpackage(unittest.TestCase):
         profile = util.compute_profile(t, weekly, 'weekly')
         self.assertTrue(np.array_equal([0, 1, 0, 1], profile))
 
+    def test_value_extraction(self):
+        v = pyomo.Var(domain=pyomo.Reals)
+        with self.assertRaises(ValueError):
+            util.extract_pyomo_values(v)
+
+        m = pyomo.ConcreteModel()
+        opt = pyomo.SolverFactory('gurobi_direct')
+
+        m.v = pyomo.Var(domain=pyomo.Reals)
+        m.c = pyomo.Constraint(expr=m.v == 1.0)
+        opt.solve(m)
+        e = util.extract_pyomo_values(m.v)
+        self.assertEqual(1, e)
+        self.assertIs(float, type(e))
+
+        m = pyomo.ConcreteModel()
+        m.v = pyomo.Var(pyomo.RangeSet(1, 2), domain=pyomo.Reals)
+        opt.solve(m)
+
+        m.v[1].value = 1
+        m.v[2].value = 2
+        e = util.extract_pyomo_values(m.v)
+        self.assertEqual(0, e[0])
+        self.assertEqual(0, e[1])
+        self.assertEqual('f', e.dtype.kind)
+
+        m = pyomo.ConcreteModel()
+        m.v = pyomo.Var(domain=pyomo.Integers, bounds=(4, 5))
+        opt.solve(m)
+        e = util.extract_pyomo_values(m.v)
+        self.assertEqual(4, e)
+
+        m = pyomo.ConcreteModel()
+        m.v = pyomo.Var(domain=pyomo.Integers, bounds=(4.1, 4.3))
+        opt.solve(m)
+        with self.assertRaises(SchedulingError):
+            util.extract_pyomo_values(m.v)
+
+        m = pyomo.ConcreteModel()
+        m.v = pyomo.Var(pyomo.RangeSet(1, 2), domain=pyomo.Binary, bounds=(0.1, 0.9))
+        opt.solve(m)
+        with self.assertRaises(SchedulingError):
+            util.extract_pyomo_values(m.v)
+
+        m = pyomo.ConcreteModel()
+        m.v = pyomo.Var(domain=pyomo.Integers, bounds=(3.9, 4.3))
+        opt.solve(m)
+        e = util.extract_pyomo_values(m.v)
+        self.assertEqual(4, e)
+        self.assertIs(int, type(e))
+
+        m = pyomo.ConcreteModel()
+        m.v = pyomo.Var(domain=pyomo.Integers)
+        opt.solve(m)
+        e = util.extract_pyomo_values(m.v)
+        self.assertEqual(0, e)
+        self.assertIs(int, type(e))
+
+        m = pyomo.ConcreteModel()
+        m.v = pyomo.Var(domain=pyomo.Integers, bounds=(None, -5))
+        opt.solve(m)
+        e = util.extract_pyomo_values(m.v)
+        self.assertEqual(-5, e)
+        self.assertIs(int, type(e))
+
+        m = pyomo.ConcreteModel()
+        m.v = pyomo.Var(domain=pyomo.Integers, bounds=(-10, -2))
+        opt.solve(m)
+        e = util.extract_pyomo_values(m.v)
+        self.assertEqual(-2, e)
+        self.assertIs(int, type(e))
+
+        m = pyomo.ConcreteModel()
+        m.v = pyomo.Var(domain=pyomo.Integers, bounds=(2, 10))
+        opt.solve(m)
+        e = util.extract_pyomo_values(m.v)
+        self.assertEqual(2, e)
+        self.assertIs(int, type(e))
+
+        m = pyomo.ConcreteModel()
+        m.v = pyomo.Var(pyomo.RangeSet(1, 2), domain=pyomo.Binary)
+        opt.solve(m)
+        e = util.extract_pyomo_values(m.v)
+        self.assertEqual(0, e[0])
+        self.assertEqual(0, e[1])
+        self.assertEqual('b', e.dtype.kind)
+
+        m = pyomo.ConcreteModel()
+        m.v = pyomo.Var(pyomo.RangeSet(1, 2), domain=pyomo.Binary, bounds=(1, None))
+        opt.solve(m)
+        e = util.extract_pyomo_values(m.v)
+        self.assertEqual(1, e[0])
+        self.assertEqual(1, e[1])
+        self.assertEqual('b', e.dtype.kind)
 
 class TimerStub:
     def __init__(self):

@@ -64,10 +64,7 @@ class DeferrableLoad(ElectricalEntity, ed.ElectricalDemand):
         self.runtime = int(round(self.E_Consumption / (self.P_El_Nom * self.time_slot)))
 
     def _get_start(self, model):
-        consumptions = np.zeros(self.op_horizon)
-        for i in self.op_time_vec:
-            consumptions[i] = pyomo.value(model.P_El_vars[i])
-        cumsum =np.cumsum(consumptions)
+        cumsum =np.cumsum(self.schedule["P_El"][self.op_slice])
         runtime_consumptions = cumsum[self.runtime:] - cumsum[:-self.runtime]
         starts = np.zeros(self.op_horizon, dtype=np.bool)
         starts[np.argmax(runtime_consumptions)] = True

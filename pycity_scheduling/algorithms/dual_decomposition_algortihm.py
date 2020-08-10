@@ -5,7 +5,7 @@ from pyomo.opt import SolverStatus, TerminationCondition
 
 from pycity_scheduling.classes import (Building, Photovoltaic, WindEnergyConverter)
 from pycity_scheduling.exception import (MaxIterationError, NonoptimalError)
-from pycity_scheduling.util import populate_models
+from pycity_scheduling.util import populate_models, extract_pyomo_values
 
 
 def dual_decomposition(city_district, optimizer="gurobi_persistent", mode="convex", models=None, eps_primal=0.01,
@@ -120,7 +120,7 @@ def dual_decomposition(city_district, optimizer="gurobi_persistent", mode="conve
                     import pycity_scheduling.util.debug as debug
                     debug.analyze_model(model, optimizers[node_id], result)
                 raise NonoptimalError("Could not retrieve schedule from model.")
-            np.copyto(P_El_Schedules[node_id], list(entity.model.P_El_vars.extract_values().values()))
+            P_El_Schedules[node_id] = extract_pyomo_values(entity.model.P_El_vars)
 
         # ----------------------
         # 2) optimize aggregator
@@ -150,8 +150,7 @@ def dual_decomposition(city_district, optimizer="gurobi_persistent", mode="conve
                 import pycity_scheduling.util.debug as debug
                 debug.analyze_model(model, optimizers[0], result)
             raise NonoptimalError("Could not retrieve schedule from model.")
-        np.copyto(P_El_Schedules[0],
-                  list(city_district.model.P_El_vars.extract_values().values()))
+        P_El_Schedules[0] = extract_pyomo_values(city_district.model.P_El_vars)
 
         # ----------------------
         # 3) Incentive Update

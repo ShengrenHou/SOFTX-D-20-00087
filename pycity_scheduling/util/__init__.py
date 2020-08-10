@@ -4,6 +4,7 @@ import numpy as np
 import pyomo.environ as pyomo
 
 from .write_csv import schedule_to_csv
+from ..exception import SchedulingError
 
 
 __all__ = [
@@ -291,3 +292,129 @@ def calculate_flexibility_potential(city_district, algorithm="central", referenc
 
     city_district.copy_schedule(src="tmp")
     return flex
+
+
+def _known_domains(s):
+    if s in [pyomo.Any, pyomo.Reals, pyomo.PositiveReals, pyomo.NonPositiveReals,
+             pyomo.NegativeReals, pyomo.NonNegativeReals, pyomo.PercentFraction,
+             pyomo.UnitInterval]:
+        return float
+    elif s in [pyomo.Integers, pyomo.PositiveIntegers, pyomo.NonPositiveIntegers,
+               pyomo.NegativeIntegers, pyomo.NonNegativeIntegers]:
+        return int
+    elif s in [pyomo.Boolean, pyomo.Binary]:
+        return bool
+    else:
+        return float
+
+_numpy_type = {
+    float: np.float64,
+    int: np.int,
+    bool: np.bool
+}
+
+
+def extract_pyomo_value(variable, var_type=None):
+    """Extract a single values out of the pyomo Variable after optimization.
+
+    Parameters
+    ----------
+    variable : pyomo.Var
+        Variable to extract value from.
+
+    var_type : type, optional
+        Type with which variable should be stored. Defaults to Domain of pyomo Variable Container or float.
+        - float : Store values as floating point numbers.
+        - int : Store values as integers (rounding down if necessary).
+        - bool : Store values as binary values.
+
+    Returns
+    -------
+    float or int or bool:
+        Extracted value from the pyomo Variable or the closest value to zero if stale.
+
+    Raises
+    ------
+    SchedulingError
+        If value to extract is not feasible.
+    """
+    if var_type is None:
+        t = _known_domains(variable.domain)
+
+    if not hasattr(variable, "stale"):
+        raise ValueError("Variable Container does not appear to have been scheduled.")
+
+    if variable.is_indexed():
+        raise ValueError("For indexed variables 'extract_pyomo_values' should be used.")
+
+    if variable.stale is True:
+        # if stale select closest feasible value to zero
+        value = 0
+        if variable.ub is not None and variable.ub < 0:
+            value = variable.ub
+        elif variable.lb is not None and variable.lb > 0:
+            value = variable.lb
+
+        if t is int:
+            if value > 0:
+                value = np.ceil(value)
+            elif value < 0:
+                value = np.floor(value)
+        elif t is bool:
+            if value != 0:
+                value = 1
+
+        if (variable.lb is not None and variable.lb > value) or \
+           (variable.ub is not None and variable.ub < value):
+            raise SchedulingError("Domain and/or bounds of variable render it infeasible.")
+        return t(value)
+    else:
+        value = variable.value
+    value = t(value)
+    assert variable.lb is None or variable.lb <= value
+    assert variable.ub is None or value <= variable.ub
+    return value
+
+
+def extract_pyomo_values(variable, var_type=None):
+    """Extract values out of the pyomo Variable container after optimization.
+
+    Parameters
+    ----------
+    variable : pyomo.Var
+        Variable container to extract values from.
+
+    var_type : type, optional
+        Type with which variable should be stored. Defaults to Domain of pyomo Variable Container or float.
+        - float : Store values as floating point numbers.
+        - int : Store values as integers (rounding down if necessary).
+        - bool : Store values as binary values.
+
+    Returns
+    -------
+    numpy.ndarray or float or int or bool:
+        If the Variable container is indexed an array containing the extracted values is returned.
+        If the Variable container is not indexed returns the single extracted value.
+
+    Raises
+    ------
+    SchedulingError
+        If values to extract are not feasible.
+    """
+
+    if variable.is_indexed():
+        if var_type is None:
+            domains = list(v.domain for v in variable.values())
+            domain = domains[0]
+            if not all(domain is d for d in domains):
+                dtype = np.float
+            else:
+                dtype = _numpy_type[_known_domains(domain)]
+        else:
+            dtype = _numpy_type[var_type]
+        values = np.zeros(len(variable), dtype=dtype)
+        for i, v in enumerate(variable.values()):
+            values[i] = extract_pyomo_value(v)
+        return values
+    else:
+        return extract_pyomo_value(variable, var_type)

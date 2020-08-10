@@ -49,8 +49,9 @@ class Battery(ElectricalEntity, bat.Battery):
         self.new_var("P_El_Demand")
         self.new_var("P_El_Supply")
         self.new_var("P_State", dtype=np.bool, func=lambda model:
-                     np.fromiter((pyomo.value(model.P_El_Demand_vars[t]) > pyomo.value(model.P_El_Supply_vars[t])
-                                 for t in self.op_time_vec), dtype=np.bool))
+                     self.schedule["P_El_Demand"][self.op_slice] >
+                     self.schedule["P_El_Supply"][self.op_slice]
+                     )
         self.new_var("E_El")
 
     def populate_model(self, model, mode="convex"):
