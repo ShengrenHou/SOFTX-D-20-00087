@@ -1,4 +1,4 @@
-import pycity_base.classes.Weather as we
+import pycity_base.classes.weather as we
 
 
 class Weather(we.Weather):

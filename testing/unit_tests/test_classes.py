@@ -242,6 +242,35 @@ class TestBuilding(unittest.TestCase):
         bd5 = Building(env, "invalid")
         self.assertRaisesRegex(ValueError, ".*Building.*", bd5.get_objective)
 
+    def test_robustness(self):
+        model = pyomo.ConcreteModel()
+        env = self.bd.environment
+        bes = BuildingEnergySystem(env)
+        self.bd.addEntity(bes)
+        ts1 = ThermalEnergyStorage(env, 10)
+        bes.addDevice(ts1)
+        ts2 = ThermalEnergyStorage(env, 25)
+        bes.addDevice(ts2)
+
+        ap = Apartment(env)
+        self.bd.addEntity(ap)
+        loadcurve = np.array([15, 15, 10, 10])
+        sh = SpaceHeating(env, loadcurve=loadcurve)
+        ap.addEntity(sh)
+
+        eh = ElectricalHeater(env, 20)
+        bes.addDevice(eh)
+
+        self.bd.populate_model(model, robustness=(3, 0.5))
+        self.bd.update_model(model, robustness=(3, 0.5))
+        assert_equal_array(np.array([self.bd.model.lower_robustness_bounds[i].value for i in range(3)]),
+                           np.cumsum(loadcurve[:3])*0.5/4)
+        assert_equal_array(np.array([self.bd.model.upper_robustness_bounds[i].value for i in range(3)]),
+                           35 - np.cumsum(loadcurve[:3]) * 0.5 / 4)
+
+        self.assertEqual(17.5, self.bd.model.lower_robustness_bounds[3].value)
+        self.assertEqual(17.5, self.bd.model.upper_robustness_bounds[3].value)
+
     def testReset(self):
         env = self.bd.environment
         bes = BuildingEnergySystem(env)
@@ -334,7 +363,7 @@ class TestCurtailableLoad(unittest.TestCase):
                 model.o = pyomo.Objective(expr=obj)
                 solve_model(model)
                 for t in range(0, 20-5+1, width):
-                    self.e.timer.currentTimestep = t
+                    self.e.timer.current_timestep = t
                     cl.update_model()
                     solve_model(model)
                     cl.update_schedule()
@@ -352,12 +381,12 @@ class TestCurtailableLoad(unittest.TestCase):
                     model.o = pyomo.Objective(expr=obj)
                     solve_model(model)
                     for t in range(0, 20-5+1, width):
-                        self.e.timer.currentTimestep = t
+                        self.e.timer.current_timestep = t
                         cl.update_model()
                         solve_model(model)
                         cl.update_schedule()
 
-                    endtimestep = self.e.timer.currentTimestep + cl.op_horizon
+                    endtimestep = self.e.timer.current_timestep + cl.op_horizon
                     for t in range(0, endtimestep):
                         self.assertGreaterEqual(cl.P_El_Schedule[t], 1)
                         self.assertLessEqual(cl.P_El_Schedule[t], 2)
@@ -375,7 +404,7 @@ class TestCurtailableLoad(unittest.TestCase):
                     cl.populate_model(model, mode="integer")
                     obj = pyomo.sum_product(cl.model.P_El_vars)
                     for t in range(0, 20-5+1, width):
-                        self.e.timer.currentTimestep = t
+                        self.e.timer.current_timestep = t
                         cl.update_model(mode="integer")
                         model.o = pyomo.Objective(expr=obj)
                         results = solve_model(model)
@@ -407,7 +436,7 @@ class TestCurtailableLoad(unittest.TestCase):
 
                     cl = CurtailableLoad(self.e, 2, 0.5, low, full)
                     cl.populate_model(model, mode="integer")
-                    self.e.timer.currentTimestep = 1
+                    self.e.timer.current_timestep = 1
                     cl.P_State_Schedule[0] = False
                     cl.P_El_Schedule[0] = 1
                     cl.update_model("integer")
@@ -440,7 +469,7 @@ class TestCurtailableLoad(unittest.TestCase):
                         obj = pyomo.sum_product(cl.model.P_El_vars)
                         model.o = pyomo.Objective(expr=obj)
                         for t in range(0, 21 - horizon, width):
-                            e.timer.currentTimestep = t
+                            e.timer.current_timestep = t
                             cl.update_model()
                             solve_model(model)
                             self.assertEqual(1, pyomo.value(cl.model.P_El_vars[0]))
@@ -462,7 +491,7 @@ class TestCurtailableLoad(unittest.TestCase):
                             obj = pyomo.sum_product(cl.model.P_El_vars)
                             model.c = pyomo.Objective(expr=obj)
                             for t in range(0, 21 - horizon, width):
-                                e.timer.currentTimestep = t
+                                e.timer.current_timestep = t
                                 cl.update_model()
                                 solve_model(model)
                                 cl.update_schedule()
@@ -485,7 +514,7 @@ class TestCurtailableLoad(unittest.TestCase):
                             cl.populate_model(model, mode="integer")
                             obj = pyomo.sum_product(cl.model.P_El_vars)
                             for t in range(0, 21 - horizon, width):
-                                e.timer.currentTimestep = t
+                                e.timer.current_timestep = t
                                 cl.update_model(mode="integer")
                                 model.o = pyomo.Objective(expr=obj)
                                 results = solve_model(model)
@@ -1229,22 +1258,22 @@ class TestTimer(unittest.TestCase):
                                                         "is larger than one year which woul be a horizon of {}"
                                          .format(h, year_horizon))
                         self.assertIn(horizon, str(w[0].message))
-                        self.assertEqual(len(we.pAmbient), year_horizon)
-                        self.assertEqual(len(we.phiAmbient), year_horizon)
-                        self.assertEqual(len(we.qDiffuse), year_horizon)
-                        self.assertEqual(len(we.qDirect), year_horizon)
+                        self.assertEqual(len(we.p_ambient), year_horizon)
+                        self.assertEqual(len(we.phi_ambient), year_horizon)
+                        self.assertEqual(len(we.q_diffuse), year_horizon)
+                        self.assertEqual(len(we.q_direct), year_horizon)
                         self.assertEqual(len(we.rad_earth), year_horizon)
                         self.assertEqual(len(we.rad_sky), year_horizon)
-                        self.assertEqual(len(we.vWind), year_horizon)
-                        self.assertEqual(len(we.tAmbient), year_horizon)
-                        self.assertEqual(len(we.currentPAmbient), year_horizon)
-                        self.assertEqual(len(we.currentPhiAmbient), year_horizon)
-                        self.assertEqual(len(we.currentQDiffuse), year_horizon)
-                        self.assertEqual(len(we.currentQDirect), year_horizon)
+                        self.assertEqual(len(we.v_wind), year_horizon)
+                        self.assertEqual(len(we.t_ambient), year_horizon)
+                        self.assertEqual(len(we.current_p_ambient), year_horizon)
+                        self.assertEqual(len(we.current_phi_ambient), year_horizon)
+                        self.assertEqual(len(we.current_q_diffuse), year_horizon)
+                        self.assertEqual(len(we.current_q_direct), year_horizon)
                         self.assertEqual(len(we.current_rad_earth), year_horizon)
                         self.assertEqual(len(we.current_rad_sky), year_horizon)
-                        self.assertEqual(len(we.currentVWind), year_horizon)
-                        self.assertEqual(len(we.currentTAmbient), year_horizon)
+                        self.assertEqual(len(we.current_v_wind), year_horizon)
+                        self.assertEqual(len(we.current_t_ambient), year_horizon)
                     else:
                         self.assertEqual(len(w), 0)
 

@@ -1,7 +1,7 @@
 import numpy as np
 import pyomo.environ as pyomo
 from pyomo.core.expr.numeric_expr import ExpressionBase
-import pycity_base.classes.supply.Boiler as bl
+import pycity_base.classes.supply.boiler as bl
 
 from .thermal_entity import ThermalEntity
 from ..util.generic_constraints import LowerActivationLimit

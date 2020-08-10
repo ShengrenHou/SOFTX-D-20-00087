@@ -17,7 +17,7 @@ def generate_standard_environment(**timer_args):
 
 
 def _calculate_ev_times(timer):
-    length = int(3600/timer.timeDiscretization)
+    length = int(3600/timer.time_discretization)
     ev_time_ranges = [
         [0] * (8 * length) + [1] * (12 * length) + [0] * (4 * length),
         [1] * (12 * length) + [0] * (12 * length),
@@ -33,7 +33,7 @@ def _calculate_ev_times(timer):
 
 
 def _calculate_dl_times(timer):
-    length = int(3600/timer.timeDiscretization)
+    length = int(3600/timer.time_discretization)
     dl_time_ranges = [
         [1] * (8 * length) + [0] * (16 * length),
         [0] * (8 * length) + [1] * (4 * length) + [0] * (12 * length),

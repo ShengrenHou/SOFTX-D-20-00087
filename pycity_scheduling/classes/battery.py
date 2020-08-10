@@ -1,6 +1,6 @@
 import numpy as np
 import pyomo.environ as pyomo
-import pycity_base.classes.supply.Battery as bat
+import pycity_base.classes.supply.battery as bat
 
 from .electrical_entity import ElectricalEntity
 
@@ -90,8 +90,8 @@ class Battery(ElectricalEntity, bat.Battery):
 
             def e_rule(model, t):
                 delta = (
-                        (self.etaCharge * model.P_El_Demand_vars[t]
-                         - (1 / self.etaDischarge) * model.P_El_Supply_vars[t])
+                        (self.eta_charge * model.P_El_Demand_vars[t]
+                         - (1 / self.eta_discharge) * model.P_El_Supply_vars[t])
                         * self.time_slot
                 )
                 E_El_last = model.E_El_vars[t - 1] if t >= 1 else model.E_El_ini

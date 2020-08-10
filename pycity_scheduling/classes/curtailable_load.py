@@ -1,6 +1,6 @@
 import numpy as np
 import pyomo.environ as pyomo
-import pycity_base.classes.demand.ElectricalDemand as ed
+import pycity_base.classes.demand.electrical_demand as ed
 
 from .electrical_entity import ElectricalEntity
 
@@ -30,7 +30,7 @@ class CurtailableLoad(ElectricalEntity, ed.ElectricalDemand):
             nominal operation level when switching to the nominal operation
             level
         """
-        shape = environment.timer.timestepsTotal
+        shape = environment.timer.timesteps_total
         super().__init__(environment, 0, np.zeros(shape))
         self._long_ID = "CUL_" + self._ID_string
 
@@ -172,7 +172,7 @@ class CurtailableLoad(ElectricalEntity, ed.ElectricalDemand):
     def update_model(self, mode="convex"):
         super(CurtailableLoad, self).update_model(mode)
         m = self.model
-        timestep = self.timer.currentTimestep
+        timestep = self.timer.current_timestep
         if hasattr(m, "previous_n_states"):
 
             for key in m.previous_n_states.sparse_iterkeys():

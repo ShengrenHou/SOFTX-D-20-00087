@@ -1,6 +1,6 @@
 import numpy as np
 import pyomo.environ as pyomo
-import pycity_base.classes.supply.BES as bes
+import pycity_base.classes.supply.building_energy_system as bes
 
 from .entity_container import EntityContainer
 
@@ -15,17 +15,10 @@ class BuildingEnergySystem(EntityContainer, bes.BES):
         self._long_ID = "BES_" + self._ID_string
 
     def get_lower_entities(self):
-        if self.hasBoiler:
-            yield self.boiler
-        if self.hasChp:
-            yield self.chp
-        if self.hasElectricalHeater:
-            yield self.electricalHeater
-        if self.hasHeatpump:
-            yield self.heatpump
-        if self.hasTes:
-            yield self.tes
-        if self.hasBattery:
-            yield self.battery
-        if self.hasPv:
-            yield self.pv
+        yield from self.boilers
+        yield from self.chp_units
+        yield from self.electrical_heaters
+        yield from self.heatpumps
+        yield from self.tes_units
+        yield from self.battery_units
+        yield from self.pv_units

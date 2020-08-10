@@ -1,7 +1,7 @@
 import numpy as np
 import pyomo.environ as pyomo
 
-import pycity_base.classes.supply.ElectricalHeater as eh
+import pycity_base.classes.supply.electrical_heater as eh
 from ..util.generic_constraints import LowerActivationLimit
 
 from .thermal_entity import ThermalEntity

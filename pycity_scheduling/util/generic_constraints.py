@@ -58,13 +58,13 @@ class LowerActivationLimit(Constraint):
         """
         self.var_nom = var_nom
         self.var_name = var_name
-        self.lowerActivationLimit = lower_activation_limit
+        self.lower_activation_limit = lower_activation_limit
         o.new_var(var_name+"_State", dtype=np.bool, func=lambda model:
                   np.fromiter((abs(getattr(model, self.var_name + "_vars")[t].value) > abs(0.01 * var_nom)
                               for t in o.op_time_vec), dtype=np.bool))
 
     def apply(self, m, mode):
-        if mode == "integer" and self.lowerActivationLimit != 0.0 and self.var_nom != 0.0:
+        if mode == "integer" and self.lower_activation_limit != 0.0 and self.var_nom != 0.0:
             # Add additional binary variables representing operating state
             if hasattr(m, self.var_name+"_State"):
                 raise ValueError("model already has a component named: {}". format(self.var_name+"_State"))
@@ -91,9 +91,9 @@ class LowerActivationLimit(Constraint):
                 orig_var = getattr(m, self.var_name + "_vars")
                 var = getattr(m, self.var_name + "_State_vars")
                 if self.var_nom > 0:
-                    return orig_var[t] >= var[t] * self.var_nom * self.lowerActivationLimit
+                    return orig_var[t] >= var[t] * self.var_nom * self.lower_activation_limit
                 else:
-                    return orig_var[t] <= var[t] * self.var_nom * self.lowerActivationLimit
+                    return orig_var[t] <= var[t] * self.var_nom * self.lower_activation_limit
 
             if hasattr(m, self.var_name+"_Activation_constr"):
                 raise ValueError("model already has a component named: {}". format(self.var_name+"_Activation_constr"))

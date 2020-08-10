@@ -84,7 +84,7 @@ district.addEntity(wec, [0, 0])
 algs.central_optimization(district)
 
 # Plot scheduling results:
-plot_time = list(range(env.timer.timestepsUsedHorizon))
+plot_time = list(range(env.timer.timesteps_used_horizon))
 figure = plt.figure(figsize=(6, 6))
 
 gs = gridspec.GridSpec(1, 1)
@@ -92,6 +92,6 @@ ax0 = plt.subplot(gs[0])
 ax0.plot(plot_time, district.P_El_Schedule)
 plt.grid()
 plt.ylabel("City District Power [kW]")
-plt.xlim((0, env.timer.timestepsUsedHorizon - 1))
+plt.xlim((0, env.timer.timesteps_used_horizon - 1))
 plt.title("Complex City District Scenario - Schedule")
 plt.show()

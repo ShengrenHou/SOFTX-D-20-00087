@@ -109,7 +109,7 @@ def compute_profile(timer, profile, pattern=None):
         else:
             return profile
     elif pattern == 'daily':
-        ts_per_day = int(86400 / timer.timeDiscretization)
+        ts_per_day = int(86400 / timer.time_discretization)
         if len(profile) != ts_per_day:
             raise ValueError(
                 "Length of `profile` does not match one day. Expected: {}, "
@@ -120,7 +120,7 @@ def compute_profile(timer, profile, pattern=None):
             ts = timer.time_in_day(from_init=True)
             return np.tile(profile, days)[ts:ts + timer.simu_horizon]
     elif pattern == 'weekly':
-        ts_per_week = int(604800 / timer.timeDiscretization)
+        ts_per_week = int(604800 / timer.time_discretization)
         if len(profile) != ts_per_week:
             raise ValueError(
                 "Length of `profile` does not match one week. Expected: {}, "

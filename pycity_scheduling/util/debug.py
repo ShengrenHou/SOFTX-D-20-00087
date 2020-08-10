@@ -63,7 +63,7 @@ def print_district(cd, lvl=1):
         print("\t{}".format(bd))
         if lvl < 2:
             continue
-        if bd.hasBes:
+        if bd.has_bes:
             for e in bd.bes.get_lower_entities():
                 print("\t\t{}".format(e))
         if len(bd.apartments) == 1:
