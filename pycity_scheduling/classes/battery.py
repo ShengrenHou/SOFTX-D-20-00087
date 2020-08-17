@@ -36,7 +36,7 @@ class Battery(ElectricalEntity, bat.Battery):
         """
         capacity = E_El_max * 3600 * 1000
         soc_abs = soc_init * capacity  # absolute SOC
-        super().__init__(environment, soc_abs, capacity, 0, eta, eta)
+        super().__init__(environment, soc_abs, capacity, 0.0, eta, eta)
         self._long_ID = "BAT_" + self._ID_string
 
         self.objective = 'peak-shaving'

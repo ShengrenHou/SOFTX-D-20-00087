@@ -38,13 +38,14 @@ class HeatPump(ThermalEntity, ElectricalEntity, hp.Heatpump):
             `lower_activation_limit = 1`: Two-point controlled
         """
         simu_horizon = environment.timer.simu_horizon
+
+        (tAmbient,) = environment.weather.getWeatherForecast(
+            getTAmbient=True
+        )
+        ts = environment.timer.time_in_year()
+        tAmbient = tAmbient[ts:ts + simu_horizon]
         if cop is None:
-            (tAmbient,) = environment.weather.getWeatherForecast(
-                getTAmbient=True
-            )
-            ts = environment.timer.time_in_year()
-            tAmbient = tAmbient[ts:ts + simu_horizon]
-            # Flow temperature of 55 C (328 K) and eta of 36%
+            # Flow temperature of 55°C (328K) and eta of 36%
             cop = 0.36 * 328 / (55 - tAmbient)
         elif isinstance(cop, (int, float)):
             cop = np.full(simu_horizon, cop)
@@ -53,7 +54,7 @@ class HeatPump(ThermalEntity, ElectricalEntity, hp.Heatpump):
                 "Unknown type for `cop`: {}. Must be `numpy.ndarray`, `int` "
                 "or `float`".format(type(cop))
             )
-        super().__init__(environment, [], 55, [], [], cop, 55, lower_activation_limit)
+        super().__init__(environment, tAmbient, 55, [], [], cop, 55, lower_activation_limit)
         self._long_ID = "HP_" + self._ID_string
         self.COP = cop
         self.P_Th_Nom = P_Th_nom

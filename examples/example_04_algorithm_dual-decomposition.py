@@ -34,7 +34,7 @@ fi = FixedLoad(e, method=0, demand=load)
 ap.addEntity(fi)
 sh = SpaceHeating(e, method=0, loadcurve=load)
 ap.addEntity(sh)
-pv = Photovoltaic(e, area=30.0, eta=0.15)
+pv = Photovoltaic(e, method=1, peak_power=4.6)
 bes.addDevice(pv)
 
 # Building no. two comes with deferrable load, curtailable load, space heating, chp unit, thermal energy storage and an

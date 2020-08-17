@@ -17,7 +17,7 @@ class TestModule(unittest.TestCase):
         e = get_env(4, 8)
         bd = Building(e)
         bes = BuildingEnergySystem(e)
-        pv = Photovoltaic(e, 0, 0)
+        pv = Photovoltaic(e, 0)
         bes.addDevice(pv)
         bd.addEntity(bes)
 
@@ -173,7 +173,7 @@ class TestBuilding(unittest.TestCase):
 
     def test_calculate_co2(self):
         bes = BuildingEnergySystem(self.bd.environment)
-        pv = Photovoltaic(self.bd.environment, 0, 0)
+        pv = Photovoltaic(self.bd.environment, 0)
         bes.addDevice(pv)
         self.bd.addEntity(bes)
         self.bd.P_El_Schedule = np.array([-5] * 2 + [5] * 4 + [-5] * 2)
@@ -586,7 +586,7 @@ class TestCityDistrict(unittest.TestCase):
         self.assertEqual(-40, costs)
 
     def test_calculate_co2(self):
-        pv = Photovoltaic(self.cd.environment, 0, 0)
+        pv = Photovoltaic(self.cd.environment, 0)
         self.cd.addEntity(pv, Point(0, 0))
         self.cd.P_El_Schedule = np.array([-5]*2 + [5]*4 + [-5]*2)
         self.cd.P_El_Ref_Schedule = np.array([-2]*2 + [2]*4 + [-2]*2)
@@ -603,7 +603,7 @@ class TestCityDistrict(unittest.TestCase):
         self.assertEqual(1100, co2)
 
     def test_self_consumption(self):
-        pv = Photovoltaic(self.cd.environment, 0, 0)
+        pv = Photovoltaic(self.cd.environment, 0)
         self.cd.addEntity(pv, Point(0, 0))
         self.cd.P_El_Schedule = np.array([4]*2 + [-4]*2 + [-10]*2 + [-2]*2)
         self.cd.P_El_Ref_Schedule = np.array([2]*2 + [-6]*2 + [-9]*2 + [-1]*2)
@@ -628,7 +628,7 @@ class TestCityDistrict(unittest.TestCase):
         self.assertEqual(0, costs_adj)
 
     def test_autarky(self):
-        pv = Photovoltaic(self.cd.environment, 0, 0)
+        pv = Photovoltaic(self.cd.environment, 0)
         self.cd.addEntity(pv, Point(0, 0))
         self.cd.P_El_Schedule = np.array([4]*2 + [-4]*2 + [-10]*2 + [-2]*2)
         self.cd.P_El_Ref_Schedule = - np.array([0]*2 + [8]*4 + [0]*2)
@@ -1109,7 +1109,7 @@ class TestHeatPump(unittest.TestCase):
 class TestPhotovoltaic(unittest.TestCase):
     def setUp(self):
         e = get_env(4, 8)
-        self.pv = Photovoltaic(e, 30, 0.3)
+        self.pv = Photovoltaic(e, 0, 30, 0.0, 0.3)
 
     def test_calculate_co2(self):
         self.pv.P_El_Schedule = - np.array([10]*8)

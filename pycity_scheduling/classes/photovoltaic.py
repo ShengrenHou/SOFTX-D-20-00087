@@ -12,8 +12,8 @@ class Photovoltaic(ElectricalEntity, pv.PV):
     Extension of pyCity_base class PV for scheduling purposes.
     """
 
-    def __init__(self, environment, area, eta, temperature_nominal=45,
-                 alpha=0, beta=0, gamma=0, tau_alpha=0.9,
+    def __init__(self, environment, method, area=0.0, peak_power=0.0, eta_noct=0.18, radiation_noct=1000.0,
+                 t_cell_noct=45.0, t_ambient_noct=20.0, alpha_noct=0, beta=0, gamma=0, tau_alpha=0.9,
                  force_renewables=True):
         """Initialize Photovoltaic.
 
@@ -21,14 +21,36 @@ class Photovoltaic(ElectricalEntity, pv.PV):
         ----------
         environment : Environment
             Common Environment instance.
-        area : float
-            Installation area in [m^2].
-        eta : float
-            Electrical efficiency at NOCT conditions.
-        temperature_nominal : float
-            Nominal cell temperature at NOCT conditions in [°C].
-        alpha : float
-            Temperature coefficient at NOCT conditions.
+        method : int
+            - 0 : Calculate PV power based on an area in m^2 equipped with PV panels
+            - 1 : Calculate PV power based on the installed PV peak power in kWp
+        area : float, optional
+            PV unit installation area in m^2
+            Requires ``method=0``
+        peak_power : float, optional
+            PV peak power installation in kWp
+            Requires ``method=1``
+        eta_noct : float, optional
+            Electrical efficiency at NOCT conditions (without unit)
+            NOCT conditions: See manufacturer's data sheets or
+            Duffie, Beckman - Solar Engineering of Thermal Processes (4th ed.), page 759
+            Requires ``method=0``
+        radiation_noct : float, optional
+            Nominal solar radiation at NOCT conditions (in W/m^2)
+            NOCT conditions: See manufacturer's data sheets or
+            Duffie, Beckman - Solar Engineering of Thermal Processes (4th ed.), page 759
+        t_cell_noct : float, optional
+            Nominal cell temperature at NOCT conditions (in degree Celsius)
+            NOCT conditions: See manufacturer's data sheets or
+            Duffie, Beckman - Solar Engineering of Thermal Processes (4th ed.), page 759
+        t_ambient_noct : float, optional
+            Nominal ambient air temperature at NOCT conditions (in degree Celsius)
+            NOCT conditions: See manufacturer's data sheets or
+            Duffie, Beckman - Solar Engineering of Thermal Processes (4th ed.), page 759
+        alpha_noct : float, optional
+            Temperature coefficient at NOCT conditions (without unit)
+            NOCT conditions: See manufacturer's data sheets or
+            Duffie, Beckman - Solar Engineering of Thermal Processes (4th ed.), page 759
         beta : float, optional
             Slope, the angle (in degree) between the plane of the surface in
             question and the horizontal. 0 <= beta <= 180. If beta > 90, the
@@ -38,16 +60,16 @@ class Photovoltaic(ElectricalEntity, pv.PV):
             horizontal plane of the normal to the surface from the local
             meridian, with zero due south, east negative, and west positive.
             -180 <= gamma <= 180
-        tau_alpha : float
+        tau_alpha : float, optional
             Optical properties of the PV unit. Product of absorption and
             transmission coeffients.
             According to Duffie, Beckman - Solar Engineering of Thermal
-            Processes (4th ed.), page 758, this value is typically close to
-            0.9.
+            Processes (4th ed.), page 758, this value is typically close to 0.9
         force_renewables : bool, optional
             `True` if generation may not be reduced for optimization puposes.
         """
-        super().__init__(environment, area, eta, temperature_nominal, alpha, beta, gamma, tau_alpha)
+        super().__init__(environment, method, area, peak_power, eta_noct, radiation_noct, t_cell_noct, t_ambient_noct,
+                         alpha_noct, beta, gamma, tau_alpha)
         self._long_ID = "PV_" + self._ID_string
 
         self.force_renewables = force_renewables

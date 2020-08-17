@@ -202,15 +202,15 @@ def generate_tabula_buildings(environment,
 
         for n in range(b['apartments']):
             ap = Apartment(environment, ap_area)
-            sh = SpaceHeating(environment, method=1, livingArea=ap_area,
-                              specificDemand=b['th_demand'],
+            sh = SpaceHeating(environment, method=1, living_area=ap_area,
+                              specific_demand=b['th_demand'],
                               profile_type=b['th_profile_type'])
             ap.addEntity(sh)
 
             if fl_list[ap_counter]:
                 fl = FixedLoad(environment, method=1,
-                               annualDemand=b['el_demand'],
-                               profileType=b['el_profile_type'])
+                               annual_demand=b['el_demand'],
+                               profile_type=b['el_profile_type'])
                 ap.addEntity(fl)
 
             if dl_list[ap_counter]:
@@ -251,9 +251,8 @@ def generate_tabula_buildings(environment,
                 angle = b['roof_angle']
             area = b['roof_area']/2.0
             # Solar world 290 standard values
-            pv = Photovoltaic(environment, area=area, eta=0.161853,
-                              temperature_nominal=46, alpha=-0.0041,
-                              beta=angle)
+            pv = Photovoltaic(environment, method=0, area=area, eta_noct=0.161853,
+                              t_cell_noct=46, alpha_noct=-0.0041, beta=angle)
             bes.addDevice(pv)
 
         if bat_list[i]:

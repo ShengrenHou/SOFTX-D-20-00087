@@ -15,10 +15,9 @@ class SpaceHeating(ThermalEntity, sh.SpaceHeating):
     of the load.
     """
 
-    def __init__(self, environment, method=0, loadcurve=1, livingArea=0,
-                 specificDemand=0, profile_type='HEF', zoneParameters=None,
-                 T_m_init=None, ventilation=0, TCoolingSet=200,
-                 THeatingSet=-50, occupancy=0, appliances=0, lighting=0):
+    def __init__(self, environment, method=0, loadcurve=1, living_area=0, specific_demand=0, profile_type='HEF',
+                 zone_parameters=None, t_m_init=None, ventilation=0, t_cooling_set=200, t_heating_set=-50, occupancy=0,
+                 appliances=0, lighting=0):
         """
         Parameters
         ----------
@@ -31,10 +30,10 @@ class SpaceHeating(ThermalEntity, sh.SpaceHeating):
         loadcurve : numpy.ndarray of float, optional
             load curve for all investigated time steps in [kW]
             requires `method=0`.
-        livingArea : float, optional
+        living_area : float, optional
             living area of the apartment in m2
             requires `method=1`
-        specificDemand : float, optional
+        specific_demand : float, optional
             specific thermal demand of the building in [kWh /(m2*a)]
             requires `method=1`
         profile_type : str, optional
@@ -54,19 +53,19 @@ class SpaceHeating(ThermalEntity, sh.SpaceHeating):
             - "GMK" : Automotive
             - "GPD" : Paper and printing
             - "GWA" : Laundries
-        zoneParameters : ZoneParameters object, optional
+        zone_parameters : ZoneParameters object, optional
             parameters of the building (floor area, building class, etc.).
             requires `method=2`
-        T_m_init : float, optional
+        t_m_init : float, optional
             initial temperature of the internal heat capacity in [?]
             requires `method=2`
         ventilation : array_like, optional
             ventilation rate in [1/h]
             requires `method=2`
-        TCoolingSet : array_like, optional
+        t_cooling_set : array_like, optional
             cooling starts if the room temperature exceeds this value
             requires `method=2`
-        THeatingSet : array_like, optional
+        t_heating_set : array_like, optional
             heating starts if the room temperature drops below this value
             requires `method=2`
         occupancy : array_like, optional
@@ -81,15 +80,16 @@ class SpaceHeating(ThermalEntity, sh.SpaceHeating):
 
         Notes
         -----
-         - the thermal standard load profile is based on the disseratation of
+         - The thermal standard load profile is based on the dissertation of
            Mark Hellwig
            "Entwicklung und Anwendung parametrisierter Standard-Lastprofile",
            TU München, Germany, 2003:
            http://mediatum.ub.tum.de/doc/601557/601557.pdf
         """
 
-        super().__init__(environment, method, loadcurve*1000, livingArea, specificDemand, profile_type, zoneParameters,
-                         T_m_init, ventilation, TCoolingSet, THeatingSet, occupancy, appliances, lighting)
+        super().__init__(environment, method, loadcurve*1000, living_area, specific_demand, profile_type,
+                         zone_parameters, t_m_init, ventilation, t_cooling_set, t_heating_set, occupancy, appliances,
+                         lighting)
         self._long_ID = "SH_" + self._ID_string
 
         ts = self.timer.time_in_year(from_init=True)

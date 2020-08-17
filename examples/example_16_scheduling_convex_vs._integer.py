@@ -19,7 +19,7 @@ bd1 = Building(environment=env, objective='peak-shaving')
 cd.addEntity(entity=bd1, position=[0, 0])
 ap1 = Apartment(environment=env)
 bd1.addEntity(ap1)
-sh1 = SpaceHeating(environment=env, method=1, livingArea=120.0, specificDemand=85.9, profile_type='HEF')
+sh1 = SpaceHeating(environment=env, method=1, living_area=120.0, specific_demand=85.9, profile_type='HEF')
 ap1.addEntity(sh1)
 bes1 = BuildingEnergySystem(environment=env)
 bd1.addEntity(bes1)
@@ -27,7 +27,7 @@ eh1 = ElectricalHeater(environment=env, P_Th_nom=12.0, lower_activation_limit=0.
 bes1.addDevice(eh1)
 tes1 = ThermalEnergyStorage(environment=env, E_Th_max=24.0)
 bes1.addDevice(tes1)
-pv1 = Photovoltaic(environment=env, area=100.0, eta=0.18)
+pv1 = Photovoltaic(environment=env, method=1, peak_power=25.0)
 bes1.addDevice(pv1)
 
 

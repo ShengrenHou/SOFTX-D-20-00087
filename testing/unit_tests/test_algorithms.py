@@ -51,7 +51,7 @@ class TestAlgorithms(unittest.TestCase):
         wec = WindEnergyConverter(e, [50, 50], [0, 0], force_renewables=False)
         cd.addEntity(wec, [0, 0])
 
-        pv = Photovoltaic(e, 0, 0.5, force_renewables=False)
+        pv = Photovoltaic(e, method=1, peak_power=4.6, force_renewables=False)
         cd.addEntity(pv, [0, 0])
 
         self.timer = t

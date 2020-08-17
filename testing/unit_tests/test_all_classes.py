@@ -25,10 +25,8 @@ class TestAllClasses(unittest.TestCase):
         bes.addMultipleDevices([bl, eh, hp, chp])
         ap = Apartment(e)
         bd.addEntity(ap)
-        fl = FixedLoad(e, method=1, annualDemand=6000,
-                       profileType='H0')
-        sh = SpaceHeating(e, method=1, livingArea=100, specificDemand=50,
-                          profile_type='HEF')
+        fl = FixedLoad(e, method=1, annual_demand=6000, profile_type='H0')
+        sh = SpaceHeating(e, method=1, living_area=100, specific_demand=50, profile_type='HEF')
         ap.addMultipleEntities([fl, sh])
         ev = ElectricalVehicle(e, 10, 10, 1, [1]*48+[0]*48)
         ap.addEntity(ev)
