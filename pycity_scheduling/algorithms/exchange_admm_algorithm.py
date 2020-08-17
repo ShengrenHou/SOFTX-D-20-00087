@@ -9,7 +9,7 @@ from pycity_scheduling.util import populate_models, extract_pyomo_values
 
 
 def exchange_admm(city_district, optimizer="gurobi_persistent", mode="convex", models=None, beta=1.0, eps_primal=0.1,
-                  eps_dual=1.0, rho=2.0, robustness=None, max_iterations=1000, debug=True):
+                  eps_dual=1.0, rho=2.0, robustness=None, max_iterations=10000, debug=True):
     """Perform Exchange ADMM on a city district.
 
     Do the scheduling of electrical energy in a city district using the
