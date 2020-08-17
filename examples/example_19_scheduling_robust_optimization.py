@@ -5,6 +5,10 @@ from pycity_scheduling.algorithms import central_optimization
 from pycity_scheduling.util import factory
 from pycity_scheduling.util.metric import calculate_costs
 
+
+# ToDo: Why does this example fail?
+
+
 # Use a simple environment of 6 hours with quarter-hourly resolution (=15min=900sec):
 env = factory.generate_standard_environment(step_size=900, op_horizon=6)
 
