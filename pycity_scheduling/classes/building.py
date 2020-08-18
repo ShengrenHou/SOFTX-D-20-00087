@@ -103,6 +103,10 @@ class Building(EntityContainer, bd.Building):
             return 0 == model.P_Th_vars[t]
         m.P_equality_constr = pyomo.Constraint(m.t, rule=p_equality_rule)
 
+        if mode == "integer":
+            pass
+            # Your code here!
+
         if robustness is not None and self.bes.has_tes:
             self._create_robust_constraints()
 
