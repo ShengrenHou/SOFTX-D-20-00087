@@ -48,6 +48,7 @@ print('Self-consumption ratio: {: >8.3f}'.format(self_consumption(bd)))
 print('Autarky ratio:          {: >8.3f}'.format(autarky(bd)))
 print('Absolute flex. gain:    {: >8.3f}'.format(absolute_flexibility_gain(cd, "Ref")))
 
+
 # Conclusion:
 # In contrast to the unoptimized case (stand-alone) both the price as well as
 # the peaks in the schedule are reduced in the optimized case. This is due to the

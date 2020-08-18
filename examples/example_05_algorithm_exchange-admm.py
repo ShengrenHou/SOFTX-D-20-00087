@@ -6,6 +6,7 @@ from pycity_scheduling.algorithms import *
 
 # This is a very simple power scheduling example using the distributed Exchange ADMM algorithm.
 
+
 # Define timer, price, weather and environment objects:
 t = Timer(op_horizon=2, step_size=3600)
 p = Prices(timer=t)
@@ -81,6 +82,7 @@ print("Schedule building no. two:")
 print(list(bd2.P_El_Schedule))
 print("Schedule of the city district:")
 print(list(cd.P_El_Schedule))
+
 
 # Conclusions:
 # If the distributed exchange ADMM optimization algorithm is applied, the two buildings are scheduled in a way

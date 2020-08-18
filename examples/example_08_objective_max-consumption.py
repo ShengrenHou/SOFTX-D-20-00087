@@ -9,6 +9,7 @@ from pycity_scheduling.algorithms import *
 # This is a very simple power scheduling example using the central optimization algorithm to demonstrate the impact
 # of system level objective "max-consumption".
 
+
 # Define timer, price, weather and environment objects:
 t = Timer(op_horizon=96, step_size=900, initial_date=(2015, 4, 1))
 p = Prices(timer=t)
@@ -54,6 +55,7 @@ plt.xlabel('Time in hours')
 plt.ylabel('Electrical power in kW')
 plt.title('City district scheduling result')
 plt.show()
+
 
 # Conclusions:
 # Using "max-consumption" as the system level objective results in a power profile with the smallest peak power for the

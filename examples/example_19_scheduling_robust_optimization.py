@@ -55,11 +55,11 @@ print('{:.2f}'.format(calculate_costs(bd)))
 bd.load_schedule("default")
 print('{:.2f}'.format(calculate_costs(bd)))
 
+
 # Conclusions:
 # If robust optimization (RO) is used, the flexibility of the thermal energy storage is not fully used.
 # This is best seen in the first four time steps, where the SoC is lower than without the robust scheduling.
 # Instead, the 'energy difference' is used to cater uncertainties that may stem from an uncertain thermal demand of the
 # building.
-
 # As a trade-off, the RO schedule becomes always less optimal than without RO.
 # This is shown by the higher costs for the robust scheduling compared to the non-robust case.

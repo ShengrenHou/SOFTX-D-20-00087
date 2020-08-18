@@ -11,6 +11,7 @@ from pycity_scheduling.algorithms import *
 # This is a very simple power scheduling example using the central optimization algorithm to demonstrate the impact
 # of system level objective "co2".
 
+
 # Define timer, price, weather and environment objects:
 t = Timer(op_horizon=96, step_size=900, initial_date=(2015, 4, 1))
 p = Prices(timer=t)
@@ -67,6 +68,7 @@ plt.xlabel('Time in hours', fontsize=12)
 figManager = plt.get_current_fig_manager()
 figManager.window.state("zoomed")
 plt.show()
+
 
 # Conclusions:
 # Using "co2" as the system level objective results in a low emission power profile for the considered city district.
