@@ -77,6 +77,9 @@ class CityDistrict(ElectricalEntity, cd.CityDistrict):
             - `convex`  : Use linear constraints
             - `integer`  : Use same constraints as convex mode
         """
+
+        # constraints imprementation to go
+
         super().populate_model(model, mode)
         m = self.model
 
